@@ -12,7 +12,7 @@ use App\Models\SalesModel;
 
 class EdasController extends Controller
 {
-    public function prosesEdas($tahun)
+    public function prosesEdas($tahun) //Untuk menjalankan metode edas
     {
         /*
         |--------------------------------------------------------------------------
@@ -329,7 +329,7 @@ class EdasController extends Controller
         ]);
     }
 
-    public function kontribusiToko(Request $request)
+    public function kontribusiToko(Request $request) // Untuk menampilkan hasil edas pada menu kontribusi toko
     {
         $tahun = $request->tahun ?? 2022;
 
@@ -448,6 +448,33 @@ class EdasController extends Controller
                 'tahunList',
                 'chartLabels',
                 'chartScores'
+            )
+        );
+    }
+
+    public function trenPenjualanToko(Request $request) //Untuk menampilkan hasil edas pada menu tren penjualan toko
+    {
+        $tahun = $request->tahun ?? 2023;
+
+        $toko = $request->toko ?? 'all';
+
+        $tahunList = SalesModel::selectRaw('YEAR(invoice_date) as tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
+        $tokoList = SalesModel::select('shopping_mall')
+            ->distinct()
+            ->orderBy('shopping_mall')
+            ->pluck('shopping_mall');
+
+        return view(
+            'owner.tren-penjualan-toko',
+            compact(
+                'tahun',
+                'toko',
+                'tahunList',
+                'tokoList'
             )
         );
     }

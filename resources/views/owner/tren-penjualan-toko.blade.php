@@ -39,57 +39,59 @@
             <!-- Dropdown Filter -->
             <div class="tren-toko-filter-frame">
 
-                <div class="tren-toko-filter-button">
-                    <div class="tren-toko-filter-icon">
-                        <img class="tren-toko-vector" src="{{ asset('img/toko.png') }}" alt="">
-                    </div>
+            <form
+                method="GET"
+                action="{{ route('owner.tren-toko') }}"
+                style="display:flex; gap:10px;"
+            >
 
-                    <div class="tren-toko-filter-text">
-                        <div class="tren-toko-filter-label">Semua Cabang</div>
-                    </div>
+                <!-- Tahun -->
+                <select
+                    name="tahun"
+                    onchange="this.form.submit()"
+                    class="tren-toko-year-select"
+                >
 
-                    <div class="tren-toko-filter-icon">
-                        <img class="tren-toko-vector-4" src="{{ asset('img/dropdown.png') }}" alt="">
-                    </div>
-                </div>
+                    @foreach($tahunList as $itemTahun)
 
-                <div class="tren-toko-dropdown">
-                    <div class="tren-toko-dropdown-active">
-                        <div class="tren-toko-dot blue"></div>
-                        <div class="tren-toko-dropdown-active-text">Semua Cabang</div>
+                        <option
+                            value="{{ $itemTahun }}"
+                            {{ $tahun == $itemTahun ? 'selected' : '' }}
+                        >
+                            {{ $itemTahun }}
+                        </option>
 
-                        <div class="tren-toko-check-wrapper">
-                            <img class="tren-toko-check" src="{{ asset('img/image.svg') }}" alt="">
-                        </div>
-                    </div>
+                    @endforeach
 
-                    <div class="tren-toko-dropdown-item">
-                        <div class="tren-toko-dot blue"></div>
-                        <div class="tren-toko-dropdown-text">Toko Jakarta Pusat</div>
-                    </div>
+                </select>
 
-                    <div class="tren-toko-dropdown-item">
-                        <div class="tren-toko-dot green"></div>
-                        <div class="tren-toko-dropdown-text">Toko Bandung Kota</div>
-                    </div>
+                <!-- Toko -->
+                <select
+                    name="toko"
+                    onchange="this.form.submit()"
+                    class="tren-toko-year-select"
+                >
 
-                    <div class="tren-toko-dropdown-item">
-                        <div class="tren-toko-dot orange"></div>
-                        <div class="tren-toko-dropdown-text">Toko Surabaya</div>
-                    </div>
+                    <option value="all">
+                        Semua Toko
+                    </option>
 
-                    <div class="tren-toko-dropdown-item">
-                        <div class="tren-toko-dot red"></div>
-                        <div class="tren-toko-dropdown-text">Toko Yogyakarta</div>
-                    </div>
+                    @foreach($tokoList as $itemToko)
 
-                    <div class="tren-toko-dropdown-item">
-                        <div class="tren-toko-dot purple"></div>
-                        <div class="tren-toko-dropdown-text">Toko Medan</div>
-                    </div>
-                </div>
+                        <option
+                            value="{{ $itemToko }}"
+                            {{ $toko == $itemToko ? 'selected' : '' }}
+                        >
+                            {{ $itemToko }}
+                        </option>
 
-            </div>
+                    @endforeach
+
+                </select>
+
+            </form>
+
+        </div>
 
         </div>
 

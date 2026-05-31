@@ -42,15 +42,15 @@ Route::prefix('owner')->group(function () {
         return view('owner.tren-penjualan-global');
     })->name('owner.tren-global');
 
-    Route::get('/tren-penjualan-toko', function () {
-        return view('owner.tren-penjualan-toko');
-    })->name('owner.tren-toko');
+    Route::get(
+        '/tren-penjualan-toko',
+        [EdasController::class, 'trenPenjualanToko']
+    )->name('owner.tren-toko');
 
     Route::get(
-        '/owner/kontribusi-toko/{tahun?}',
+        '/kontribusi-toko/{tahun?}',
         [EdasController::class, 'kontribusiToko']
     )->name('owner.kontribusi-toko');
-
 });
 
 /*
