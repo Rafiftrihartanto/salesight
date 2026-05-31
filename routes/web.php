@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EdasController;
-
+use App\Http\Controllers\ForwardController;
 
 // Landing Page
 Route::get('/', function () {
@@ -61,3 +61,14 @@ Route::prefix('owner')->group(function () {
 
 Route::get('/proses-edas/{tahun}',
     [EdasController::class, 'prosesEdas']);
+
+/*
+|--------------------------------------------------------------------------
+| FORWARD CHAINING
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/proses-status-toko/{yearAwal}/{yearAkhir}',
+    [ForwardController::class, 'prosesStatusToko']
+);
