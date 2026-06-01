@@ -208,9 +208,25 @@ class ForwardController extends Controller
         */
 
         $statusCabang = StatusTokoModel::where(
-                'year_akhir',
-                $tahun
-            );
+            'year_akhir',
+            $tahun
+        );
+
+        // Pertumbuhan Tertinggi
+        $pertumbuhanTertinggi = StatusTokoModel::where(
+        'year_akhir',
+        $tahun
+        )
+        ->orderByDesc('growth_percent')
+        ->first();
+
+        // Penurunan Terbesar
+        $penurunanTerbesar = StatusTokoModel::where(
+        'year_akhir',
+        $tahun
+        )
+        ->orderBy('growth_percent')
+        ->first();
 
         if ($toko != 'all') {
 
@@ -316,7 +332,9 @@ class ForwardController extends Controller
                 'chartSales',
                 'jumlahNaik',
                 'jumlahTurun',
-                'jumlahStagnan'
+                'jumlahStagnan',
+                'pertumbuhanTertinggi',
+                'penurunanTerbesar'
             )
         );
     }

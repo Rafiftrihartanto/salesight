@@ -97,7 +97,7 @@
 
         <!-- Bottom Cards -->
         <div class="tren-toko-bottom-wrapper">
-        
+
             <!-- Status Cabang -->
             <div class="tren-toko-status-card">
 
@@ -160,7 +160,7 @@
             <div class="tren-toko-insight-card">
 
                 <div class="tren-toko-section-title-wrapper">
-                    <div class="tren-toko-section-title">Insight Toko</div>
+                    <div class="tren-toko-section-title">Pertumbuhan Toko</div>
                 </div>
 
                 <div class="tren-toko-insight-list">
@@ -176,7 +176,17 @@
 
                             <div class="tren-toko-insight-text-wrapper">
                                 <div class="tren-toko-insight-title blue-text">
-                                    Toko Penjualan Tertinggi
+                                    Pertumbuhan Tertinggi
+                                </div>
+                                <div class="tren-toko-insight-value">
+                                    {{ $pertumbuhanTertinggi->shopping_mall }}
+                                </div>
+
+                                <div class="tren-toko-insight-growth positive">
+                                    +{{ number_format(
+                                        $pertumbuhanTertinggi->growth_percent,
+                                        2
+                                    ) }}%
                                 </div>
                             </div>
                         </div>
@@ -194,21 +204,25 @@
 
                             <div class="tren-toko-insight-text-wrapper small">
                                 <div class="tren-toko-insight-title yellow-text">
-                                    Toko Aktif Terendah
+                                    Penurunan Terbesar
+                                </div>
+                                <div class="tren-toko-insight-value">
+                                    {{ $penurunanTerbesar->shopping_mall }}
+                                </div>
+
+                                <div class="tren-toko-insight-growth negative">
+                                    {{ number_format(
+                                        $penurunanTerbesar->growth_percent,
+                                        2
+                                    ) }}%
                                 </div>
                             </div>
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
 @endsection

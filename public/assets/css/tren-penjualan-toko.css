@@ -692,3 +692,28 @@
 .badge-stagnan .tren-toko-status-text{
     color:#d97706;
 }
+
+/* PERTUMBUHAN TOKO */
+.tren-toko-insight-value{
+    margin-top:15px;
+
+    font-size:18px;
+    font-weight:700;
+
+    color:#1e293b;
+}
+
+.tren-toko-insight-growth{
+    margin-top:8px;
+
+    font-size:24px;
+    font-weight:700;
+}
+
+.tren-toko-insight-growth.positive{
+    color:#16a34a;
+}
+
+.tren-toko-insight-growth.negative{
+    color:#dc2626;
+}
