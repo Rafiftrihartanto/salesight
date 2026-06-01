@@ -97,75 +97,60 @@
 
         <!-- Bottom Cards -->
         <div class="tren-toko-bottom-wrapper">
-
+        
             <!-- Status Cabang -->
             <div class="tren-toko-status-card">
 
                 <div class="tren-toko-section-title-wrapper">
-                    <div class="tren-toko-section-title">Status Cabang</div>
+                    <div class="tren-toko-section-title">Status Toko</div>
                 </div>
 
-                <div class="tren-toko-status-list">
+                <div class="tren-toko-status-scroll">
+
+                    @foreach($statusCabang as $item)
 
                     <div class="tren-toko-status-item">
-                        <div class="tren-toko-status-dot blue"></div>
+
+                        <div class="
+                            tren-toko-status-dot
+                            @if($item->status_toko == 'Naik')
+                                green
+                            @elseif($item->status_toko == 'Turun')
+                                red
+                            @else
+                                orange
+                            @endif
+                        ">
+                        </div>
 
                         <div class="tren-toko-status-name-wrapper">
-                            <div class="tren-toko-status-name">Toko Jakarta Pusat</div>
+
+                            <div class="tren-toko-status-name">
+                                {{ $item->shopping_mall }}
+                            </div>
+
                         </div>
 
-                        <div class="tren-toko-status-badge">
-                            <div class="tren-toko-status-text">● Aktif</div>
+                        <div class="
+                            tren-toko-status-badge
+                            @if($item->status_toko == 'Naik')
+                                badge-naik
+                            @elseif($item->status_toko == 'Turun')
+                                badge-turun
+                            @else
+                                badge-stagnan
+                            @endif
+                        ">
+
+                            <div class="tren-toko-status-text">
+                                {{ $item->status_toko }}
+                            </div>
+
                         </div>
+
                     </div>
 
-                    <div class="tren-toko-status-item">
-                        <div class="tren-toko-status-dot green"></div>
-
-                        <div class="tren-toko-status-name-wrapper">
-                            <div class="tren-toko-status-name">Toko Bandung Kota</div>
-                        </div>
-
-                        <div class="tren-toko-status-badge">
-                            <div class="tren-toko-status-text">● Aktif</div>
-                        </div>
-                    </div>
-
-                    <div class="tren-toko-status-item">
-                        <div class="tren-toko-status-dot orange"></div>
-
-                        <div class="tren-toko-status-name-wrapper">
-                            <div class="tren-toko-status-name">Toko Surabaya</div>
-                        </div>
-
-                        <div class="tren-toko-status-badge">
-                            <div class="tren-toko-status-text">● Aktif</div>
-                        </div>
-                    </div>
-
-                    <div class="tren-toko-status-item">
-                        <div class="tren-toko-status-dot red"></div>
-
-                        <div class="tren-toko-status-name-wrapper">
-                            <div class="tren-toko-status-name">Toko Yogyakarta</div>
-                        </div>
-
-                        <div class="tren-toko-status-badge">
-                            <div class="tren-toko-status-text">● Aktif</div>
-                        </div>
-                    </div>
-
-                    <div class="tren-toko-status-item last">
-                        <div class="tren-toko-status-dot purple"></div>
-
-                        <div class="tren-toko-status-name-wrapper">
-                            <div class="tren-toko-status-name">Toko Medan</div>
-                        </div>
-
-                        <div class="tren-toko-status-badge">
-                            <div class="tren-toko-status-text">● Aktif</div>
-                        </div>
-                    </div>
+                    @endforeach
 
                 </div>
 

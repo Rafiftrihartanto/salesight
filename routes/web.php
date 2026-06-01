@@ -43,8 +43,8 @@ Route::prefix('owner')->group(function () {
     })->name('owner.tren-global');
 
     Route::get(
-        '/tren-penjualan-toko',
-        [EdasController::class, 'trenPenjualanToko']
+    '/tren-penjualan-toko',
+    [ForwardController::class, 'trenPenjualanToko']
     )->name('owner.tren-toko');
 
     Route::get(
