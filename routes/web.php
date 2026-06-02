@@ -63,3 +63,14 @@ Route::prefix('owner')->group(function () {
 */
 
 Route::get('/proses-edas/{tahun}', [EdasController::class, 'prosesEdas']);
+
+/*
+|--------------------------------------------------------------------------
+| FORWARD CHAINING
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/proses-status-toko/{yearAwal}/{yearAkhir}',
+    [EdasController::class, 'prosesStatusToko']
+);
