@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\HasilEdasModel;
 use App\Models\SalesModel;
 
-class EdasController extends Controller
+class KontribusiTokoController extends Controller
 {
     public function prosesEdas($tahun) //Untuk menjalankan metode edas
     {
