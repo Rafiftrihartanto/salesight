@@ -10,7 +10,7 @@
 
 html, body {
     height: 100%;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
     background-color: #f1f5f9; /* Background abu-abu terang seragam dengan login/register */
     color: #0f172a;
 }

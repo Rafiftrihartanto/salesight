@@ -1,6 +1,6 @@
 <aside class="sidebar-container">
-    <div class="sidebar-header">
-        <a href="{{ route('owner.dashboard') }}" class="sidebar-brand-link">
+    
+    <a href="{{ route('owner.dashboard') }}" class="sidebar-brand-link">
         <div class="sidebar-header">
             <div class="brand-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="salesight-logo-svg">
@@ -15,7 +15,6 @@
             </div>
         </div>
     </a>
-    </div>
 
     <nav class="sidebar-nav">
         <div class="nav-section-title">NAVIGASI</div>
@@ -44,9 +43,10 @@
             @if (request()->routeIs('owner.kontribusi-toko')) <div class="active-indicator"></div> @endif
         </a>
 
-        <a href="#" class="nav-item">
+        <a href="{{ route('owner.kelola-cabang') }}" class="nav-item {{ request()->routeIs('owner.kelola-cabang') ? 'active' : '' }}">
             <img class="nav-icon" src="{{ asset('img/kelolacabang.png') }}" alt="Kelola Cabang" />
             <span class="nav-text">Kelola Cabang</span>
+            @if (request()->routeIs('owner.kelola-cabang')) <div class="active-indicator"></div> @endif
         </a>
 
         <a href="#" class="nav-item">
