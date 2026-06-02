@@ -16,14 +16,15 @@ Route::get('/', function () {
 */
 
 // LOGIN
-Route::get('/login', function () {
-    return view('login.login');
-})->name('login');
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'loginProcess']);
 
 // REGISTER
-Route::get('/register', function () {
-    return view('register.register');
-})->name('register');
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [AuthController::class, 'registerProcess']);
+
+// LOGOUT
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
 /*
