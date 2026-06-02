@@ -282,13 +282,12 @@
     stroke-width: 3;
 }
 
-/* Kolom Aksi */
+/* Kolom Aksi (Tombol Selalu Terlihat) */
 .kc-td-aksi {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 8px;
-    /* Opacity sudah dihilangkan sehingga selalu terlihat */
 }
 
 .kc-btn-edit, .kc-btn-hapus {
@@ -357,6 +356,22 @@
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Modifikasi Modal Alert Hapus */
+.text-center { text-align: center; }
+.mt-4 { margin-top: 16px; }
+.kc-modal-icon-warning {
+    width: 64px;
+    height: 64px;
+    background-color: #fee2e2;
+    color: #dc2626;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+}
+.kc-modal-icon-warning i { width: 32px; height: 32px; }
+
 .kc-modal-overlay.active .kc-modal-box {
     transform: scale(1);
 }
@@ -387,9 +402,9 @@
 
 .kc-modal-header { margin-bottom: 24px; }
 .kc-modal-header h2 { font-size: 24px; font-weight: 800; color: #0f172a; margin: 0 0 4px 0; }
-.kc-modal-header p { font-size: 14px; font-weight: 500; color: #64748b; margin: 0; }
+.kc-modal-header p { font-size: 14px; font-weight: 500; color: #64748b; margin: 0; line-height: 1.5; }
 
-.kc-modal-form { display: flex; flex-direction: column; gap: 20px; }
+.kc-modal-form { display: flex; flex-direction: column; gap: 20px; text-align: left; }
 
 .kc-form-group label {
     display: block;
@@ -399,7 +414,7 @@
     margin-bottom: 8px;
 }
 
-.kc-form-group input {
+.kc-form-group input, .kc-select {
     width: 100%;
     padding: 14px 16px;
     border-radius: 12px;
@@ -411,10 +426,20 @@
     color: #0f172a;
     transition: all 0.2s;
     outline: none;
+    appearance: none; /* Khusus select */
+}
+
+/* Custom icon dropdown untuk select */
+.kc-select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    padding-right: 40px;
 }
 
 .kc-form-group input::placeholder { color: #94a3b8; font-weight: 400; }
-.kc-form-group input:focus {
+.kc-form-group input:focus, .kc-select:focus {
     background-color: #ffffff;
     border-color: #314cff;
     box-shadow: 0 0 0 4px rgba(49, 76, 255, 0.1);
@@ -493,6 +518,27 @@
     background-color: #2842f0;
     transform: translateY(-2px);
     box-shadow: 0 12px 24px rgba(49, 76, 255, 0.35);
+}
+
+.kc-btn-delete-confirm {
+    flex: 2;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    background-color: #dc2626;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.25);
+    transition: all 0.2s;
+}
+
+.kc-btn-delete-confirm:hover {
+    background-color: #b91c1c;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(220, 38, 38, 0.35);
 }
 
 /* RESPONSIVE */

@@ -44,7 +44,7 @@
                         <th>LOKASI</th>
                         <th>KODE CABANG</th>
                         <th>STATUS</th>
-                        <th style="text-align: right;">AKSI</th>
+                        <th style="text-align: center;">AKSI</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,8 +72,8 @@
                         </td>
                         <td>
                             <div class="kc-td-aksi">
-                                <button class="kc-btn-edit"><i data-lucide="edit-2"></i> Edit</button>
-                                <button class="kc-btn-hapus"><i data-lucide="trash-2"></i> Hapus</button>
+                                <button class="kc-btn-edit" onclick="toggleModal('modalEditCabang')"><i data-lucide="edit-2"></i> Edit</button>
+                                <button class="kc-btn-hapus" onclick="toggleModal('modalHapusCabang')"><i data-lucide="trash-2"></i> Hapus</button>
                             </div>
                         </td>
                     </tr>
@@ -101,8 +101,8 @@
                         </td>
                         <td>
                             <div class="kc-td-aksi">
-                                <button class="kc-btn-edit"><i data-lucide="edit-2"></i> Edit</button>
-                                <button class="kc-btn-hapus"><i data-lucide="trash-2"></i> Hapus</button>
+                                <button class="kc-btn-edit" onclick="toggleModal('modalEditCabang')"><i data-lucide="edit-2"></i> Edit</button>
+                                <button class="kc-btn-hapus" onclick="toggleModal('modalHapusCabang')"><i data-lucide="trash-2"></i> Hapus</button>
                             </div>
                         </td>
                     </tr>
@@ -130,8 +130,8 @@
                         </td>
                         <td>
                             <div class="kc-td-aksi">
-                                <button class="kc-btn-edit"><i data-lucide="edit-2"></i> Edit</button>
-                                <button class="kc-btn-hapus"><i data-lucide="trash-2"></i> Hapus</button>
+                                <button class="kc-btn-edit" onclick="toggleModal('modalEditCabang')"><i data-lucide="edit-2"></i> Edit</button>
+                                <button class="kc-btn-hapus" onclick="toggleModal('modalHapusCabang')"><i data-lucide="trash-2"></i> Hapus</button>
                             </div>
                         </td>
                     </tr>
@@ -159,8 +159,8 @@
                         </td>
                         <td>
                             <div class="kc-td-aksi">
-                                <button class="kc-btn-edit"><i data-lucide="edit-2"></i> Edit</button>
-                                <button class="kc-btn-hapus"><i data-lucide="trash-2"></i> Hapus</button>
+                                <button class="kc-btn-edit" onclick="toggleModal('modalEditCabang')"><i data-lucide="edit-2"></i> Edit</button>
+                                <button class="kc-btn-hapus" onclick="toggleModal('modalHapusCabang')"><i data-lucide="trash-2"></i> Hapus</button>
                             </div>
                         </td>
                     </tr>
@@ -207,6 +207,72 @@
             <div class="kc-modal-actions">
                 <button type="button" class="kc-btn-cancel" onclick="toggleModal('modalTambahCabang')">Batal</button>
                 <button type="submit" class="kc-btn-submit">Tambah Cabang</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalEditCabang" class="kc-modal-overlay">
+    <div class="kc-modal-backdrop" onclick="toggleModal('modalEditCabang')"></div>
+    
+    <div class="kc-modal-box">
+        <button class="kc-modal-close" onclick="toggleModal('modalEditCabang')">
+            <i data-lucide="x"></i>
+        </button>
+
+        <div class="kc-modal-header">
+            <h2>Edit Data Cabang</h2>
+            <p>Perbarui informasi cabang yang sudah terdaftar</p>
+        </div>
+
+        <form action="#" method="POST" class="kc-modal-form">
+            <div class="kc-form-group">
+                <label>Nama Cabang <span class="text-red">*</span></label>
+                <input type="text" value="Toko Jakarta Pusat" required>
+            </div>
+
+            <div class="kc-form-group">
+                <label>Lokasi <span class="text-red">*</span></label>
+                <input type="text" value="Jakarta Pusat, DKI Jakarta" required>
+            </div>
+
+            <div class="kc-form-group">
+                <label>Status Cabang</label>
+                <select class="kc-select" required>
+                    <option value="aktif" selected>Aktif</option>
+                    <option value="nonaktif">Nonaktif</option>
+                </select>
+            </div>
+
+            <div class="kc-modal-actions">
+                <button type="button" class="kc-btn-cancel" onclick="toggleModal('modalEditCabang')">Batal</button>
+                <button type="submit" class="kc-btn-submit">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalHapusCabang" class="kc-modal-overlay">
+    <div class="kc-modal-backdrop" onclick="toggleModal('modalHapusCabang')"></div>
+    
+    <div class="kc-modal-box text-center">
+        <button class="kc-modal-close" onclick="toggleModal('modalHapusCabang')">
+            <i data-lucide="x"></i>
+        </button>
+
+        <div class="kc-modal-icon-warning">
+            <i data-lucide="alert-triangle"></i>
+        </div>
+
+        <div class="kc-modal-header">
+            <h2>Hapus Cabang?</h2>
+            <p>Apakah Anda yakin ingin menghapus cabang ini? Semua data transaksi yang terhubung dengan cabang ini akan ikut terhapus permanen.</p>
+        </div>
+
+        <form action="#" method="POST" class="kc-modal-form mt-4">
+            <div class="kc-modal-actions">
+                <button type="button" class="kc-btn-cancel" onclick="toggleModal('modalHapusCabang')">Batal</button>
+                <button type="submit" class="kc-btn-delete-confirm">Ya, Hapus Cabang</button>
             </div>
         </form>
     </div>
