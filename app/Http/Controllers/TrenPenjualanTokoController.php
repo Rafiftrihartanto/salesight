@@ -212,22 +212,6 @@ class TrenPenjualanTokoController extends Controller
             $tahun
         );
 
-        // Pertumbuhan Tertinggi
-        $pertumbuhanTertinggi = StatusTokoModel::where(
-        'year_akhir',
-        $tahun
-        )
-        ->orderByDesc('growth_percent')
-        ->first();
-
-        // Penurunan Terbesar
-        $penurunanTerbesar = StatusTokoModel::where(
-        'year_akhir',
-        $tahun
-        )
-        ->orderBy('growth_percent')
-        ->first();
-
         if ($toko != 'all') {
 
             $statusCabang->where(
@@ -239,6 +223,34 @@ class TrenPenjualanTokoController extends Controller
         $statusCabang = $statusCabang
             ->orderBy('shopping_mall')
             ->get();
+
+        $dataForwardTersedia = $statusCabang->count() > 0;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Insight Pertumbuhan
+        |--------------------------------------------------------------------------
+        */
+
+        $pertumbuhanTertinggi = null;
+        $penurunanTerbesar = null;
+
+        if ($dataForwardTersedia) {
+
+            $pertumbuhanTertinggi = StatusTokoModel::where(
+                'year_akhir',
+                $tahun
+            )
+            ->orderByDesc('growth_percent')
+            ->first();
+
+            $penurunanTerbesar = StatusTokoModel::where(
+                'year_akhir',
+                $tahun
+            )
+            ->orderBy('growth_percent')
+            ->first();
+        }
 
         /*
         |--------------------------------------------------------------------------
@@ -334,7 +346,8 @@ class TrenPenjualanTokoController extends Controller
                 'jumlahTurun',
                 'jumlahStagnan',
                 'pertumbuhanTertinggi',
-                'penurunanTerbesar'
+                'penurunanTerbesar',
+                'dataForwardTersedia'
             )
         );
     }

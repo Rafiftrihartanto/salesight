@@ -91,7 +91,7 @@
 
             </form>
 
-        </div>
+            </div>
 
         </div>
 
@@ -104,6 +104,27 @@
                 <div class="tren-toko-section-title-wrapper">
                     <div class="tren-toko-section-title">Status Toko</div>
                 </div>
+
+                @if(!$dataForwardTersedia)
+
+                    <div class="tren-toko-empty">
+
+                        Data transaksi tahun
+                        <strong>{{ $tahun }}</strong>
+                        belum dapat diproses menggunakan
+                        Forward Chaining.
+
+                        <br><br>
+
+                        Penyebab:
+                        <ul>
+                            <li>Tidak memiliki tahun pembanding</li>
+                            <li>Atau data tahun belum lengkap</li>
+                        </ul>
+
+                    </div>
+
+                @else
 
                 <div class="tren-toko-status-scroll">
 
@@ -153,6 +174,7 @@
                     @endforeach
 
                 </div>
+                @endif
 
             </div>
 
@@ -178,16 +200,22 @@
                                 <div class="tren-toko-insight-title blue-text">
                                     Pertumbuhan Tertinggi
                                 </div>
+
+                                @if($dataForwardTersedia)
                                 <div class="tren-toko-insight-value">
                                     {{ $pertumbuhanTertinggi->shopping_mall }}
                                 </div>
-
                                 <div class="tren-toko-insight-growth positive">
                                     +{{ number_format(
                                         $pertumbuhanTertinggi->growth_percent,
                                         2
                                     ) }}%
                                 </div>
+                                @else
+                                <div class="tren-toko-insight-growth positive">
+                                    -
+                                </div>
+                                @endif
                             </div>
                         </div>
 
@@ -207,14 +235,22 @@
                                     Penurunan Terbesar
                                 </div>
                                 <div class="tren-toko-insight-value">
-                                    {{ $penurunanTerbesar->shopping_mall }}
+                                     @if($dataForwardTersedia)
+                                        {{ $penurunanTerbesar->shopping_mall }}
+                                    @else
+                                        
+                                    @endif
                                 </div>
 
                                 <div class="tren-toko-insight-growth negative">
-                                    {{ number_format(
-                                        $penurunanTerbesar->growth_percent,
-                                        2
-                                    ) }}%
+                                    @if($dataForwardTersedia)
+                                        {{ number_format(
+                                            $penurunanTerbesar->growth_percent,
+                                            2
+                                        ) }}%
+                                    @else
+                                    -
+                                    @endif
                                 </div>
                             </div>
                         </div>

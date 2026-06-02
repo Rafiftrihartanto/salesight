@@ -717,3 +717,37 @@
 .tren-toko-insight-growth.negative{
     color:#dc2626;
 }
+
+.tren-toko-warning{
+    margin-top: 20px;
+
+    padding: 12px 16px;
+
+    background: #fff7ed;
+    border: 1px solid #fdba74;
+
+    border-radius: 10px;
+
+    color: #c2410c;
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.tren-toko-empty{
+    margin:20px;
+    padding:16px;
+
+    background:#fff7ed;
+    border:1px solid #fdba74;
+    border-radius:12px;
+
+    color:#9a3412;
+    font-size:14px;
+    line-height:1.6;
+}
+
+.tren-toko-empty ul{
+    margin-top:8px;
+    margin-left:18px;
+}
