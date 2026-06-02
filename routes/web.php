@@ -47,10 +47,13 @@ Route::prefix('owner')->group(function () {
     [ForwardController::class, 'trenPenjualanToko']
     )->name('owner.tren-toko');
 
-    Route::get(
-        '/kontribusi-toko/{tahun?}',
-        [EdasController::class, 'kontribusiToko']
-    )->name('owner.kontribusi-toko');
+    Route::get('/kontribusi-toko/{tahun?}', [EdasController::class, 'kontribusiToko'])
+        ->name('owner.kontribusi-toko');
+
+    Route::get('/kelola-cabang', function () {
+        return view('owner.kelola-cabang');
+    })->name('owner.kelola-cabang');
+
 });
 
 /*
@@ -59,16 +62,4 @@ Route::prefix('owner')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/proses-edas/{tahun}',
-    [EdasController::class, 'prosesEdas']);
-
-/*
-|--------------------------------------------------------------------------
-| FORWARD CHAINING
-|--------------------------------------------------------------------------
-*/
-
-Route::get(
-    '/proses-status-toko/{yearAwal}/{yearAkhir}',
-    [ForwardController::class, 'prosesStatusToko']
-);
+Route::get('/proses-edas/{tahun}', [EdasController::class, 'prosesEdas']);
