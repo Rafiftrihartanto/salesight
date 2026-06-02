@@ -52,6 +52,10 @@ Route::prefix('owner')->group(function () {
         return view('owner.kelola-cabang');
     })->name('owner.kelola-cabang');
 
+    Route::get('/daftar-toko', function () {
+        return view('owner.daftar-toko');
+    })->name('owner.daftar-toko');
+
 });
 
 /*

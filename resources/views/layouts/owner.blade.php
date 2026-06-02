@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/tren-penjualan-toko.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/owner-kontribusi-toko.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/owner-kelola-cabang.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/owner-daftar-toko.css') }}">
     </head>
 <body>
     <div class="layout-wrapper">

@@ -49,21 +49,24 @@
             @if (request()->routeIs('owner.kelola-cabang')) <div class="active-indicator"></div> @endif
         </a>
 
-        <a href="#" class="nav-item">
+        <a href="{{ route('owner.daftar-toko') }}" class="nav-item {{ request()->routeIs('owner.daftar-toko') ? 'active' : '' }}">
             <img class="nav-icon" src="{{ asset('img/daftartoko.png') }}" alt="Daftar Toko" />
             <span class="nav-text">Daftar Toko</span>
+            @if (request()->routeIs('owner.daftar-toko')) <div class="active-indicator"></div> @endif
         </a>
     </nav>
 
+    <!-- Footer Sidebar -->
     <div class="sidebar-footer">
         <div class="owner-mode-card">
             <div class="mode-title">Owner Mode</div>
             <div class="mode-subtitle">Multi-branch analytics</div>
         </div>
         
-        <button class="logout-btn">
+        <!-- Ubah tag <button> menjadi <a> dan arahkan ke route login -->
+        <a href="{{ route('login') }}" class="logout-btn">
             <img class="logout-icon" src="{{ asset('img/logout.png') }}" alt="Logout" />
             <span>Keluar</span>
-        </button>
+        </a>
     </div>
 </aside>
