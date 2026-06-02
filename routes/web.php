@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\EdasController;
+use App\Http\Controllers\KontribusiTokoController;
+use App\Http\Controllers\TrenPenjualanTokoController;
 
 // Landing Page
 Route::get('/', function () {
@@ -41,11 +42,12 @@ Route::prefix('owner')->group(function () {
         return view('owner.tren-penjualan-global');
     })->name('owner.tren-global');
 
-    Route::get('/tren-penjualan-toko', function () {
-        return view('owner.tren-penjualan-toko');
-    })->name('owner.tren-toko');
+    Route::get(
+    '/tren-penjualan-toko',
+    [TrenPenjualanTokoController::class, 'trenPenjualanToko']
+    )->name('owner.tren-toko');
 
-    Route::get('/kontribusi-toko/{tahun?}', [EdasController::class, 'kontribusiToko'])
+    Route::get('/kontribusi-toko/{tahun?}', [KontribusiTokoController::class, 'kontribusiToko'])
         ->name('owner.kontribusi-toko');
 
     Route::get('/kelola-cabang', function () {
@@ -64,4 +66,15 @@ Route::prefix('owner')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::get('/proses-edas/{tahun}', [EdasController::class, 'prosesEdas']);
+Route::get('/proses-edas/{tahun}', [KontribusiTokoController::class, 'prosesEdas']);
+
+/*
+|--------------------------------------------------------------------------
+| FORWARD CHAINING
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
+    '/proses-status-toko/{yearAwal}/{yearAkhir}',
+    [TrenPenjualanTokoController::class, 'prosesStatusToko']
+);
