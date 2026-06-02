@@ -39,55 +39,57 @@
             <!-- Dropdown Filter -->
             <div class="tren-toko-filter-frame">
 
-                <div class="tren-toko-filter-button">
-                    <div class="tren-toko-filter-icon">
-                        <img class="tren-toko-vector" src="{{ asset('img/toko.png') }}" alt="">
-                    </div>
+            <form
+                method="GET"
+                action="{{ route('owner.tren-toko') }}"
+                style="display:flex; gap:10px;"
+            >
 
-                    <div class="tren-toko-filter-text">
-                        <div class="tren-toko-filter-label">Semua Cabang</div>
-                    </div>
+                <!-- Tahun -->
+                <select
+                    name="tahun"
+                    onchange="this.form.submit()"
+                    class="tren-toko-year-select"
+                >
 
-                    <div class="tren-toko-filter-icon">
-                        <img class="tren-toko-vector-4" src="{{ asset('img/dropdown.png') }}" alt="">
-                    </div>
-                </div>
+                    @foreach($tahunList as $itemTahun)
 
-                <div class="tren-toko-dropdown">
-                    <div class="tren-toko-dropdown-active">
-                        <div class="tren-toko-dot blue"></div>
-                        <div class="tren-toko-dropdown-active-text">Semua Cabang</div>
+                        <option
+                            value="{{ $itemTahun }}"
+                            {{ $tahun == $itemTahun ? 'selected' : '' }}
+                        >
+                            {{ $itemTahun }}
+                        </option>
 
-                        <div class="tren-toko-check-wrapper">
-                            <img class="tren-toko-check" src="{{ asset('img/image.svg') }}" alt="">
-                        </div>
-                    </div>
+                    @endforeach
 
-                    <div class="tren-toko-dropdown-item">
-                        <div class="tren-toko-dot blue"></div>
-                        <div class="tren-toko-dropdown-text">Toko Jakarta Pusat</div>
-                    </div>
+                </select>
 
-                    <div class="tren-toko-dropdown-item">
-                        <div class="tren-toko-dot green"></div>
-                        <div class="tren-toko-dropdown-text">Toko Bandung Kota</div>
-                    </div>
+                <!-- Toko -->
+                <select
+                    name="toko"
+                    onchange="this.form.submit()"
+                    class="tren-toko-year-select"
+                >
 
-                    <div class="tren-toko-dropdown-item">
-                        <div class="tren-toko-dot orange"></div>
-                        <div class="tren-toko-dropdown-text">Toko Surabaya</div>
-                    </div>
+                    <option value="all">
+                        Semua Toko
+                    </option>
 
-                    <div class="tren-toko-dropdown-item">
-                        <div class="tren-toko-dot red"></div>
-                        <div class="tren-toko-dropdown-text">Toko Yogyakarta</div>
-                    </div>
+                    @foreach($tokoList as $itemToko)
 
-                    <div class="tren-toko-dropdown-item">
-                        <div class="tren-toko-dot purple"></div>
-                        <div class="tren-toko-dropdown-text">Toko Medan</div>
-                    </div>
-                </div>
+                        <option
+                            value="{{ $itemToko }}"
+                            {{ $toko == $itemToko ? 'selected' : '' }}
+                        >
+                            {{ $itemToko }}
+                        </option>
+
+                    @endforeach
+
+                </select>
+
+            </form>
 
             </div>
 
@@ -100,72 +102,79 @@
             <div class="tren-toko-status-card">
 
                 <div class="tren-toko-section-title-wrapper">
-                    <div class="tren-toko-section-title">Status Cabang</div>
+                    <div class="tren-toko-section-title">Status Toko</div>
                 </div>
 
-                <div class="tren-toko-status-list">
+                @if(!$dataForwardTersedia)
+
+                    <div class="tren-toko-empty">
+
+                        Data transaksi tahun
+                        <strong>{{ $tahun }}</strong>
+                        belum dapat diproses menggunakan
+                        Forward Chaining.
+
+                        <br><br>
+
+                        Penyebab:
+                        <ul>
+                            <li>Tidak memiliki tahun pembanding</li>
+                            <li>Atau data tahun belum lengkap</li>
+                        </ul>
+
+                    </div>
+
+                @else
+
+                <div class="tren-toko-status-scroll">
+
+                    @foreach($statusCabang as $item)
 
                     <div class="tren-toko-status-item">
-                        <div class="tren-toko-status-dot blue"></div>
+
+                        <div class="
+                            tren-toko-status-dot
+                            @if($item->status_toko == 'Naik')
+                                green
+                            @elseif($item->status_toko == 'Turun')
+                                red
+                            @else
+                                orange
+                            @endif
+                        ">
+                        </div>
 
                         <div class="tren-toko-status-name-wrapper">
-                            <div class="tren-toko-status-name">Toko Jakarta Pusat</div>
+
+                            <div class="tren-toko-status-name">
+                                {{ $item->shopping_mall }}
+                            </div>
+
                         </div>
 
-                        <div class="tren-toko-status-badge">
-                            <div class="tren-toko-status-text">● Aktif</div>
+                        <div class="
+                            tren-toko-status-badge
+                            @if($item->status_toko == 'Naik')
+                                badge-naik
+                            @elseif($item->status_toko == 'Turun')
+                                badge-turun
+                            @else
+                                badge-stagnan
+                            @endif
+                        ">
+
+                            <div class="tren-toko-status-text">
+                                {{ $item->status_toko }}
+                            </div>
+
                         </div>
+
                     </div>
 
-                    <div class="tren-toko-status-item">
-                        <div class="tren-toko-status-dot green"></div>
-
-                        <div class="tren-toko-status-name-wrapper">
-                            <div class="tren-toko-status-name">Toko Bandung Kota</div>
-                        </div>
-
-                        <div class="tren-toko-status-badge">
-                            <div class="tren-toko-status-text">● Aktif</div>
-                        </div>
-                    </div>
-
-                    <div class="tren-toko-status-item">
-                        <div class="tren-toko-status-dot orange"></div>
-
-                        <div class="tren-toko-status-name-wrapper">
-                            <div class="tren-toko-status-name">Toko Surabaya</div>
-                        </div>
-
-                        <div class="tren-toko-status-badge">
-                            <div class="tren-toko-status-text">● Aktif</div>
-                        </div>
-                    </div>
-
-                    <div class="tren-toko-status-item">
-                        <div class="tren-toko-status-dot red"></div>
-
-                        <div class="tren-toko-status-name-wrapper">
-                            <div class="tren-toko-status-name">Toko Yogyakarta</div>
-                        </div>
-
-                        <div class="tren-toko-status-badge">
-                            <div class="tren-toko-status-text">● Aktif</div>
-                        </div>
-                    </div>
-
-                    <div class="tren-toko-status-item last">
-                        <div class="tren-toko-status-dot purple"></div>
-
-                        <div class="tren-toko-status-name-wrapper">
-                            <div class="tren-toko-status-name">Toko Medan</div>
-                        </div>
-
-                        <div class="tren-toko-status-badge">
-                            <div class="tren-toko-status-text">● Aktif</div>
-                        </div>
-                    </div>
+                    @endforeach
 
                 </div>
+                @endif
 
             </div>
 
@@ -173,7 +182,7 @@
             <div class="tren-toko-insight-card">
 
                 <div class="tren-toko-section-title-wrapper">
-                    <div class="tren-toko-section-title">Insight Toko</div>
+                    <div class="tren-toko-section-title">Pertumbuhan Toko</div>
                 </div>
 
                 <div class="tren-toko-insight-list">
@@ -189,8 +198,24 @@
 
                             <div class="tren-toko-insight-text-wrapper">
                                 <div class="tren-toko-insight-title blue-text">
-                                    Toko Penjualan Tertinggi
+                                    Pertumbuhan Tertinggi
                                 </div>
+
+                                @if($dataForwardTersedia)
+                                <div class="tren-toko-insight-value">
+                                    {{ $pertumbuhanTertinggi->shopping_mall }}
+                                </div>
+                                <div class="tren-toko-insight-growth positive">
+                                    +{{ number_format(
+                                        $pertumbuhanTertinggi->growth_percent,
+                                        2
+                                    ) }}%
+                                </div>
+                                @else
+                                <div class="tren-toko-insight-growth positive">
+                                    -
+                                </div>
+                                @endif
                             </div>
                         </div>
 
@@ -207,21 +232,33 @@
 
                             <div class="tren-toko-insight-text-wrapper small">
                                 <div class="tren-toko-insight-title yellow-text">
-                                    Toko Aktif Terendah
+                                    Penurunan Terbesar
+                                </div>
+                                <div class="tren-toko-insight-value">
+                                     @if($dataForwardTersedia)
+                                        {{ $penurunanTerbesar->shopping_mall }}
+                                    @else
+                                        
+                                    @endif
+                                </div>
+
+                                <div class="tren-toko-insight-growth negative">
+                                    @if($dataForwardTersedia)
+                                        {{ number_format(
+                                            $penurunanTerbesar->growth_percent,
+                                            2
+                                        ) }}%
+                                    @else
+                                    -
+                                    @endif
                                 </div>
                             </div>
                         </div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
 @endsection
