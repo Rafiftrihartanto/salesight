@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EdasController;
-use App\Http\Controllers\ForwardController;
+use App\Http\Controllers\TrenPenjualanTokoController;
 
 // Landing Page
 Route::get('/', function () {
@@ -44,7 +44,7 @@ Route::prefix('owner')->group(function () {
 
     Route::get(
     '/tren-penjualan-toko',
-    [ForwardController::class, 'trenPenjualanToko']
+    [TrenPenjualanTokoController::class, 'trenPenjualanToko']
     )->name('owner.tren-toko');
 
     Route::get('/kontribusi-toko/{tahun?}', [EdasController::class, 'kontribusiToko'])

@@ -7,7 +7,7 @@ use App\Models\StatusTokoModel;
 use App\Models\SalesModel;
 use Illuminate\Support\Facades\DB;
 
-class ForwardController extends Controller
+class TrenPenjualanTokoController extends Controller
 {
     public function prosesStatusToko($yearAwal, $yearAkhir)
     {
