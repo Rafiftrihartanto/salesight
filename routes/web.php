@@ -6,6 +6,10 @@ use App\Http\Controllers\KontribusiTokoController;
 use App\Http\Controllers\TrenPenjualanTokoController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\TransaksiController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BranchController;
+use App\Http\Controllers\DashboardController; // Tambahan import agar tidak error
+
 // Landing Page
 Route::get('/', function () {
     return view('landing.landing');
@@ -20,13 +24,13 @@ Route::get('/register', function () {
     return view('register.register');
 })->name('register');
 
-// OWNER
-Route::prefix('owner')->group(function () {
+// Hanya 1 Prefix, dan semua rute owner dilindungi Middleware Auth
+Route::prefix('owner')->middleware('auth')->group(function () {
 
-    Route::get('/dashboard', function () {
-        return view('owner.dashboard');
-    })->name('owner.dashboard');
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('owner.dashboard');
 
+    // Tren Global
     Route::get('/tren-global', function () {
         return view('owner.tren-penjualan-global');
     })->name('owner.tren-global');
@@ -40,11 +44,14 @@ Route::prefix('owner')->group(function () {
         '/kontribusi-toko/{tahun?}',
         [KontribusiTokoController::class, 'kontribusiToko']
     )->name('owner.kontribusi-toko');
+  
+    // Kelola Cabang (Rute statis yang lama sudah dihapus)
+    Route::get('/kelola-cabang', [BranchController::class, 'index'])->name('owner.kelola-cabang');
+    Route::post('/kelola-cabang', [BranchController::class, 'store'])->name('owner.kelola-cabang.store');
+    Route::put('/kelola-cabang/{id}', [BranchController::class, 'update'])->name('owner.kelola-cabang.update');
+    Route::delete('/kelola-cabang/{id}', [BranchController::class, 'destroy'])->name('owner.kelola-cabang.destroy');
 
-    Route::get('/kelola-cabang', function () {
-        return view('owner.kelola-cabang');
-    })->name('owner.kelola-cabang');
-
+    // Daftar Toko
     Route::get('/daftar-toko', function () {
         return view('owner.daftar-toko');
     })->name('owner.daftar-toko');
@@ -52,6 +59,12 @@ Route::prefix('owner')->group(function () {
 
 // ADMIN
 Route::prefix('admin')->group(function () {
+
+/*
+|--------------------------------------------------------------------------
+| EDAS
+|--------------------------------------------------------------------------
+*/
 
     // Dashboard
     Route::get(
@@ -101,6 +114,7 @@ Route::prefix('admin')->group(function () {
         [TransaksiController::class, 'destroy']
     )->name('admin.delete');
 });
+
 // EDAS
 Route::get(
     '/proses-edas/{tahun}',
