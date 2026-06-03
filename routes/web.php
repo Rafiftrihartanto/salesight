@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KontribusiTokoController;
 use App\Http\Controllers\TrenPenjualanTokoController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BranchController;
 
 // Landing Page
 Route::get('/', function () {
@@ -55,11 +57,19 @@ Route::prefix('owner')->group(function () {
         return view('owner.kelola-cabang');
     })->name('owner.kelola-cabang');
 
+    Route::get('/kelola-cabang', [BranchController::class, 'index'])->name('owner.kelola-cabang');
+    Route::post('/kelola-cabang', [BranchController::class, 'store'])->name('owner.kelola-cabang.store');
+
+    Route::put('/kelola-cabang/{id}', [BranchController::class, 'update'])->name('owner.kelola-cabang.update');
+
+    Route::delete('/kelola-cabang/{id}', [BranchController::class, 'destroy'])->name('owner.kelola-cabang.destroy');
+
     Route::get('/daftar-toko', function () {
         return view('owner.daftar-toko');
     })->name('owner.daftar-toko');
 
 });
+
 
 /*
 |--------------------------------------------------------------------------
