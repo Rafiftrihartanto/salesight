@@ -87,10 +87,14 @@ Route::prefix('admin')->middleware('auth')->group(function () {
         return view('admin.data-transaksi'); 
     })->name('admin.transaksi');
 
-    //
+    // input data
     Route::get('/input-data', function () {
         return view('admin.input-data'); 
     })->name('admin.input');
+
+    Route::get('/laporan', function () {
+        return view('admin.laporan'); 
+    })->name('admin.laporan');
 });
 
 
