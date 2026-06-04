@@ -6,6 +6,8 @@ use App\Http\Controllers\TrenPenjualanTokoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminTransactionController;
 
 // Landing Page
 Route::get('/', function () {
@@ -78,19 +80,20 @@ Route::prefix('owner')->middleware('auth')->group(function () {
 Route::prefix('admin')->middleware('auth')->group(function () {
     
     // Dashboard Admin 
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
 
     //DATA TRANSAKSI
-    Route::get('/data-transaksi', function () {
-        return view('admin.data-transaksi'); 
-    })->name('admin.transaksi');
+    Route::get('/data-transaksi', [AdminTransactionController::class, 'index'])->name('admin.transaksi');
 
-    //
-    Route::get('/input-data', function () {
-        return view('admin.input-data'); 
-    })->name('admin.input');
+    Route::post('/data-transaksi/import', [AdminTransactionController::class, 'importCsv'])->name('admin.transaksi.import');
+    Route::delete('/data-transaksi/{id}', [AdminTransactionController::class, 'destroy'])->name('admin.transaksi.destroy');
+
+    // input data
+    Route::get('/input-data', [AdminTransactionController::class, 'create'])->name('admin.input');
+    Route::post('/input-data', [AdminTransactionController::class, 'store'])->name('admin.input.store');
+    Route::delete('/data-transaksi/{id}', [AdminTransactionController::class, 'destroy'])->name('admin.transaksi.destroy');
+    Route::get('/data-transaksi/{id}/edit', [AdminTransactionController::class, 'edit'])->name('admin.transaksi.edit');
+    Route::put('/data-transaksi/{id}', [AdminTransactionController::class, 'update'])->name('admin.transaksi.update');
 });
 
 

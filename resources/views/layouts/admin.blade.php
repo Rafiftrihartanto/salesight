@@ -66,12 +66,6 @@
                         <i data-lucide="file-plus-2" class="w-5 h-5"></i>
                         <span class="text-sm">Input Data</span>
                     </a>
-
-                    <a href="#" 
-                       class="flex items-center gap-3 px-3 py-3 text-slate-500 hover:bg-slate-50 hover:text-slate-800 rounded-xl transition-colors font-medium">
-                        <i data-lucide="clipboard-list" class="w-5 h-5"></i>
-                        <span class="text-sm">Laporan</span>
-                    </a>
                 </nav>
             </div>
         </div>
