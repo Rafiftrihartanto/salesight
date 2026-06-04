@@ -5,7 +5,7 @@ use App\Http\Controllers\KontribusiTokoController;
 use App\Http\Controllers\TrenPenjualanTokoController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BranchController;
-use App\Http\Controllers\DashboardController; // Tambahan import agar tidak error
+use App\Http\Controllers\DashboardController;
 
 // Landing Page
 Route::get('/', function () {
@@ -55,7 +55,7 @@ Route::prefix('owner')->middleware('auth')->group(function () {
     Route::get('/kontribusi-toko/{tahun?}', [KontribusiTokoController::class, 'kontribusiToko'])
         ->name('owner.kontribusi-toko');
 
-    // Kelola Cabang (Rute statis yang lama sudah dihapus)
+    // Kelola Cabang
     Route::get('/kelola-cabang', [BranchController::class, 'index'])->name('owner.kelola-cabang');
     Route::post('/kelola-cabang', [BranchController::class, 'store'])->name('owner.kelola-cabang.store');
     Route::put('/kelola-cabang/{id}', [BranchController::class, 'update'])->name('owner.kelola-cabang.update');
@@ -66,6 +66,31 @@ Route::prefix('owner')->middleware('auth')->group(function () {
         return view('owner.daftar-toko');
     })->name('owner.daftar-toko');
 
+});
+
+/*
+|--------------------------------------------------------------------------
+| ADMIN
+|--------------------------------------------------------------------------
+*/
+
+// Rute khusus untuk Admin, dilindungi oleh middleware auth
+Route::prefix('admin')->middleware('auth')->group(function () {
+    
+    // Dashboard Admin 
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('admin.dashboard');
+
+    //DATA TRANSAKSI
+    Route::get('/data-transaksi', function () {
+        return view('admin.data-transaksi'); 
+    })->name('admin.transaksi');
+
+    //
+    Route::get('/input-data', function () {
+        return view('admin.input-data'); 
+    })->name('admin.input');
 });
 
 
