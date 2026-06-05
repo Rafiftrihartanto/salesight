@@ -181,6 +181,16 @@ class TrenPenjualanTokoController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | Tipe Chart
+        |--------------------------------------------------------------------------
+        */
+
+        $chartType = $toko == 'all'
+        ? 'bar'
+        : 'line';
+
+        /*
+        |--------------------------------------------------------------------------
         | Dropdown Tahun
         |--------------------------------------------------------------------------
         */
@@ -342,6 +352,7 @@ class TrenPenjualanTokoController extends Controller
                 'statusCabang',
                 'chartLabels',
                 'chartSales',
+                'chartType',
                 'jumlahNaik',
                 'jumlahTurun',
                 'jumlahStagnan',
