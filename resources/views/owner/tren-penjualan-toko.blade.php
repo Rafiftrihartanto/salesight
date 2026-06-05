@@ -268,28 +268,23 @@
 <script>
 
 const labels = @json($chartLabels);
-const salesData = @json($chartSales);
-const chartType = @json($chartType);
+const datasets = @json($chartDatasets);
 
 new Chart(
     document.getElementById('salesChart'),
     {
-        type: chartType,
+        type: 'line',
 
         data: {
             labels: labels,
 
-            datasets: [{
-                label: 'Total Penjualan',
-
-                data: salesData,
-
-                borderWidth: 3,
-
-                fill: false,
-
-                tension: 0.3
-            }]
+            datasets: datasets.map(item => ({
+                label: item.label,
+                data: item.data,
+                borderWidth: 2,
+                tension: 0.3,
+                fill: false
+            }))
         },
 
         options: {
@@ -299,14 +294,12 @@ new Chart(
             maintainAspectRatio: false,
 
             plugins: {
-
                 legend: {
                     display: true
                 }
             },
 
             scales: {
-
                 y: {
                     beginAtZero: true
                 }
