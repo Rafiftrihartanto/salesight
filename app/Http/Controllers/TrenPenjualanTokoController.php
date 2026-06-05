@@ -181,6 +181,16 @@ class TrenPenjualanTokoController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | Tipe Chart
+        |--------------------------------------------------------------------------
+        */
+
+        $chartType = $toko == 'all'
+        ? 'bar'
+        : 'line';
+
+        /*
+        |--------------------------------------------------------------------------
         | Dropdown Tahun
         |--------------------------------------------------------------------------
         */
@@ -258,54 +268,98 @@ class TrenPenjualanTokoController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $queryChart = SalesModel::whereYear(
-            'invoice_date',
-            $tahun
-        );
+            if ($toko == 'all') {
 
-        if ($toko != 'all') {
+            $chartLabels = [
+                'Jan','Feb','Mar','Apr',
+                'Mei','Jun','Jul','Agu',
+                'Sep','Okt','Nov','Des'
+            ];
 
-            $queryChart->where(
-                'shopping_mall',
-                $toko
-            );
-        }
+            $chartDatasets = [];
 
-        $chartData = $queryChart
-            ->selectRaw("
-                MONTH(invoice_date) as bulan,
-                SUM(total_sales) as total_penjualan
-            ")
-            ->groupBy('bulan')
-            ->orderBy('bulan')
-            ->get();
+            $semuaToko = SalesModel::select('shopping_mall')
+                ->distinct()
+                ->pluck('shopping_mall');
 
-        $chartLabels = [
-            'Jan',
-            'Feb',
-            'Mar',
-            'Apr',
-            'Mei',
-            'Jun',
-            'Jul',
-            'Agu',
-            'Sep',
-            'Okt',
-            'Nov',
-            'Des'
-        ];
+            foreach ($semuaToko as $namaToko) {
 
-        $chartSales = [];
+                $dataBulanan = SalesModel::whereYear(
+                        'invoice_date',
+                        $tahun
+                    )
+                    ->where(
+                        'shopping_mall',
+                        $namaToko
+                    )
+                    ->selectRaw("
+                        MONTH(invoice_date) as bulan,
+                        SUM(total_sales) as total_penjualan
+                    ")
+                    ->groupBy('bulan')
+                    ->orderBy('bulan')
+                    ->get();
 
-        for ($i = 1; $i <= 12; $i++) {
+                $sales = [];
 
-            $bulan = $chartData
-                ->where('bulan', $i)
-                ->first();
+                for ($i = 1; $i <= 12; $i++) {
 
-            $chartSales[] = $bulan
-                ? $bulan->total_penjualan
-                : 0;
+                    $bulan = $dataBulanan
+                        ->where('bulan', $i)
+                        ->first();
+
+                    $sales[] = $bulan
+                        ? $bulan->total_penjualan
+                        : 0;
+                }
+
+                $chartDatasets[] = [
+                    'label' => $namaToko,
+                    'data' => $sales
+                ];
+            }
+
+        } else {
+
+            $chartLabels = [
+                'Jan','Feb','Mar','Apr',
+                'Mei','Jun','Jul','Agu',
+                'Sep','Okt','Nov','Des'
+            ];
+
+            $chartData = SalesModel::whereYear(
+                    'invoice_date',
+                    $tahun
+                )
+                ->where(
+                    'shopping_mall',
+                    $toko
+                )
+                ->selectRaw("
+                    MONTH(invoice_date) as bulan,
+                    SUM(total_sales) as total_penjualan
+                ")
+                ->groupBy('bulan')
+                ->orderBy('bulan')
+                ->get();
+
+            $sales = [];
+
+            for ($i = 1; $i <= 12; $i++) {
+
+                $bulan = $chartData
+                    ->where('bulan', $i)
+                    ->first();
+
+                $sales[] = $bulan
+                    ? $bulan->total_penjualan
+                    : 0;
+            }
+
+            $chartDatasets = [[
+                'label' => $toko,
+                'data' => $sales
+            ]];
         }
 
         /*
@@ -341,7 +395,7 @@ class TrenPenjualanTokoController extends Controller
                 'tokoList',
                 'statusCabang',
                 'chartLabels',
-                'chartSales',
+                'chartDatasets',
                 'jumlahNaik',
                 'jumlahTurun',
                 'jumlahStagnan',

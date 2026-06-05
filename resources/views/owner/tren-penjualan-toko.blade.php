@@ -34,7 +34,9 @@
                 </div>
             </div>
 
-            <div class="tren-toko-chart-placeholder"></div>
+            <div class="tren-toko-chart-placeholder">
+                <canvas id="salesChart"></canvas>
+            </div>
 
             <!-- Dropdown Filter -->
             <div class="tren-toko-filter-frame">
@@ -260,5 +262,52 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+const labels = @json($chartLabels);
+const datasets = @json($chartDatasets);
+
+new Chart(
+    document.getElementById('salesChart'),
+    {
+        type: 'line',
+
+        data: {
+            labels: labels,
+
+            datasets: datasets.map(item => ({
+                label: item.label,
+                data: item.data,
+                borderWidth: 2,
+                tension: 0.3,
+                fill: false
+            }))
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    display: true
+                }
+            },
+
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    }
+);
+
+</script>
 
 @endsection
