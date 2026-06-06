@@ -22,16 +22,46 @@
 
         <div class="tren-global-chart-header">
 
-            <div>
-                <div class="tren-global-card-title">
-                    Tren Penjualan Global
-                </div>
+        <div>
+            <div class="tren-global-card-title">
+                Tren Penjualan Global
             </div>
-
         </div>
 
-        <div class="tren-global-chart-placeholder">
+        <div>
+            <form
+                method="GET"
+                action="{{ route('owner.tren-global') }}"
+            >
 
+                <select
+                    name="tahun"
+                    onchange="this.form.submit()"
+                    class="tren-global-year-select"
+                >
+
+                    @foreach($tahunList as $itemTahun)
+
+                        <option
+                            value="{{ $itemTahun }}"
+                            {{ $tahun == $itemTahun ? 'selected' : '' }}
+                        >
+                            {{ $itemTahun }}
+                        </option>
+
+                    @endforeach
+
+                </select>
+
+            </form>
+        </div>
+
+</div>
+
+        <div class="tren-global-chart-placeholder">
+            <div class="tren-global-chart-wrapper">
+                <canvas id="globalSalesChart"></canvas>
+            </div>
         </div>
 
     </div>
@@ -49,11 +79,11 @@
             <div class="tren-global-comparison active">
 
                 <div class="tren-global-comparison-title">
-                    (Bulan Ini)
+                    Bulan Ini - {{ $labelBulanIni }}
                 </div>
 
                 <div class="tren-global-comparison-value">
-
+                    Rp {{ number_format($penjualanBulanIni, 0, ',', '.') }}
                 </div>
 
             </div>
@@ -61,17 +91,21 @@
             <div class="tren-global-comparison">
 
                 <div class="tren-global-comparison-title gray">
-                    (Bulan Lalu)
+                    Bulan Lalu - {{ $labelBulanLalu }}
                 </div>
 
                 <div class="tren-global-comparison-value">
-
+                    Rp {{ number_format($penjualanBulanLalu, 0, ',', '.') }}
                 </div>
 
             </div>
 
             <div class="tren-global-alert">
-
+                <div class="tren-global-alert-text">
+                    {{ $statusPerbandingan }}
+                    {{ number_format(abs($persentaseSelisih), 1) }}%
+                    dibanding bulan sebelumnya
+                </div>
             </div>
 
         </div>
@@ -94,6 +128,18 @@
 
                     <div class="tren-global-insight-text orange-text">
                         Bulan Penjualan Tertinggi
+                        
+                        <div class="tren-global-insight-detail">
+
+                            <div class="tren-global-insight-month">
+                                {{ $labelTertinggi }}
+                            </div>
+
+                            <div class="tren-global-insight-sales">
+                                Rp{{ number_format($nilaiTertinggi,0,',','.') }}
+                            </div>
+
+                        </div>
                     </div>
 
                 </div>
@@ -111,6 +157,16 @@
 
                     <div class="tren-global-insight-text red-text">
                         Bulan Penjualan Terendah
+                        
+                        <div class="tren-global-insight-detail">
+                            <div class="tren-global-insight-month">
+                                {{ $labelTerendah }}
+                            </div>
+
+                            <div class="tren-global-insight-sales">
+                                Rp{{ number_format($nilaiTerendah,0,',','.') }}
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -121,11 +177,20 @@
             <div class="tren-global-average">
 
                 <div class="tren-global-comparison-title">
-                    Rata-rata Penjualan Bulanan
+                    Growth Bulanan (%)
                 </div>
 
                 <div class="tren-global-average-value">
-                    
+                    @foreach($growthBulanan as $growth)
+                        <div>
+                            {{ $growth['bulan'] }}
+                            @if($growth['growth'] > 0)
+                                +{{ $growth['growth'] }}%
+                            @else
+                                {{ $growth['growth'] }}%
+                            @endif
+                        </div>
+                    @endforeach
                 </div>
 
             </div>
@@ -135,5 +200,67 @@
     </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const canvas =
+            document.getElementById(
+                'globalSalesChart'
+            );
+
+        console.log(canvas);
+
+        const labels =
+            @json($chartLabels);
+
+        const salesData =
+            @json($chartSales);
+
+        new Chart(
+            canvas,
+            {
+                type: 'line',
+
+                data: {
+                    labels: labels,
+
+                    datasets: [{
+                        label: 'Total Penjualan',
+                        data: salesData,
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            }
+        );
+
+    }
+);
+
+</script>
 
 @endsection

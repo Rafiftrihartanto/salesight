@@ -8,6 +8,7 @@ use App\Http\Controllers\BranchController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminTransactionController;
+use App\Http\Controllers\TrenPenjualanGlobalController;
 
 // Landing Page
 Route::get('/', function () {
@@ -45,9 +46,10 @@ Route::prefix('owner')->middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('owner.dashboard');
 
     // Tren Global
-    Route::get('/tren-global', function () {
-        return view('owner.tren-penjualan-global');
-    })->name('owner.tren-global');
+    Route::get(
+        '/tren-global',
+        [TrenPenjualanGlobalController::class, 'index']
+    )->name('owner.tren-global');
 
     // Tren Toko
     Route::get('/tren-penjualan-toko', [TrenPenjualanTokoController::class, 'trenPenjualanToko'])
