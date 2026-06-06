@@ -77,7 +77,7 @@
             <div class="tren-global-comparison active">
 
                 <div class="tren-global-comparison-title">
-                    {{ $labelBulanIni }}
+                    Bulan Ini - {{ $labelBulanIni }}
                 </div>
 
                 <div class="tren-global-comparison-value">
@@ -89,7 +89,7 @@
             <div class="tren-global-comparison">
 
                 <div class="tren-global-comparison-title gray">
-                    {{ $labelBulanLalu }}
+                    Bulan Lalu - {{ $labelBulanLalu }}
                 </div>
 
                 <div class="tren-global-comparison-value">
@@ -100,11 +100,9 @@
 
             <div class="tren-global-alert">
                 <div class="tren-global-alert-text">
-
-                    Selisih :
-
-                    Rp {{ number_format($selisih, 0, ',', '.') }}
-
+                    {{ $statusPerbandingan }}
+                    {{ number_format(abs($persentaseSelisih), 1) }}%
+                    dibanding bulan sebelumnya
                 </div>
             </div>
 

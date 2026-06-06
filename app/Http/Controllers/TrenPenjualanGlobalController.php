@@ -46,9 +46,26 @@ class TrenPenjualanGlobalController extends Controller
             ? $bulanLalu->total_penjualan
             : 0;
 
-        $selisih =
+        $selisihNominal =
             $penjualanBulanIni -
             $penjualanBulanLalu;
+
+        if ($penjualanBulanLalu > 0) {
+
+        $persentaseSelisih =
+            ($selisihNominal / $penjualanBulanLalu) * 100;
+
+        } else {
+            $persentaseSelisih = 0;
+        }
+
+        if ($persentaseSelisih > 0) {
+            $statusPerbandingan = '+';
+        } elseif ($persentaseSelisih < 0) {
+            $statusPerbandingan = '-';
+        } else {
+            $statusPerbandingan = 'Stabil';
+        }
 
         $namaBulan = [
             1 => 'Januari',
@@ -84,7 +101,8 @@ class TrenPenjualanGlobalController extends Controller
                 'labelBulanLalu',
                 'penjualanBulanIni',
                 'penjualanBulanLalu',
-                'selisih'
+                'persentaseSelisih',
+                'statusPerbandingan'
             )
         );
     }
