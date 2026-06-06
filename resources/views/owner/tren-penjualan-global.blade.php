@@ -126,6 +126,11 @@
 
                     <div class="tren-global-insight-text orange-text">
                         Bulan Penjualan Tertinggi
+                        <div class="tren-global-insight-value">
+                            {{ $labelTertinggi }}
+                            <br>
+                            Rp {{ number_format($nilaiTertinggi, 0, ',', '.') }}
+                        </div>
                     </div>
 
                 </div>
@@ -143,6 +148,11 @@
 
                     <div class="tren-global-insight-text red-text">
                         Bulan Penjualan Terendah
+                        <div class="tren-global-insight-value">
+                            {{ $labelTerendah }}
+                            <br>
+                            Rp {{ number_format($nilaiTerendah, 0, ',', '.') }}
+                        </div>
                     </div>
 
                 </div>
@@ -153,11 +163,20 @@
             <div class="tren-global-average">
 
                 <div class="tren-global-comparison-title">
-                    Rata-rata Penjualan Bulanan
+                    Growth Bulanan (%)
                 </div>
 
                 <div class="tren-global-average-value">
-                    
+                    @foreach($growthBulanan as $growth)
+                        <div>
+                            {{ $growth['bulan'] }}
+                            @if($growth['growth'] > 0)
+                                +{{ $growth['growth'] }}%
+                            @else
+                                {{ $growth['growth'] }}%
+                            @endif
+                        </div>
+                    @endforeach
                 </div>
 
             </div>

@@ -91,6 +91,61 @@ class TrenPenjualanGlobalController extends Controller
             $bulanLalu
                 ? $namaBulan[$bulanLalu->bulan]
                 : '-';
+        
+        $bulanTertinggi = $penjualanBulanan
+            ->sortByDesc('total_penjualan')
+            ->first();
+
+        $bulanTerendah = $penjualanBulanan
+            ->sortBy('total_penjualan')
+            ->first();
+
+        $growthBulanan = [];
+
+        for ($i = 1; $i < $penjualanBulanan->count(); $i++) {
+
+            $bulanSekarang = $penjualanBulanan[$i];
+
+            $bulanSebelumnya = $penjualanBulanan[$i - 1];
+
+            if ($bulanSebelumnya->total_penjualan > 0) {
+
+                $growth =
+                    (
+                        (
+                            $bulanSekarang->total_penjualan -
+                            $bulanSebelumnya->total_penjualan
+                        )
+                        /
+                        $bulanSebelumnya->total_penjualan
+                    ) * 100;
+
+            } else {
+
+                $growth = 0;
+            }
+
+            $growthBulanan[] = [
+                'bulan' => $namaBulan[$bulanSekarang->bulan],
+                'growth' => round($growth, 1)
+            ];
+        }
+
+        $labelTertinggi = $bulanTertinggi
+            ? $namaBulan[$bulanTertinggi->bulan]
+            : '-';
+
+        $labelTerendah = $bulanTerendah
+            ? $namaBulan[$bulanTerendah->bulan]
+            : '-';
+        
+        $nilaiTertinggi = $bulanTertinggi
+            ? $bulanTertinggi->total_penjualan
+            : 0;
+
+        $nilaiTerendah = $bulanTerendah
+            ? $bulanTerendah->total_penjualan
+            : 0;
 
         return view(
             'owner.tren-penjualan-global',
@@ -102,7 +157,12 @@ class TrenPenjualanGlobalController extends Controller
                 'penjualanBulanIni',
                 'penjualanBulanLalu',
                 'persentaseSelisih',
-                'statusPerbandingan'
+                'statusPerbandingan',
+                'labelTertinggi',
+                'labelTerendah',
+                'nilaiTertinggi',
+                'nilaiTerendah',
+                'growthBulanan'
             )
         );
     }

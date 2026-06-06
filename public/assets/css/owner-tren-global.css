@@ -217,3 +217,17 @@
     font-weight:700;
     color:#dc2626;
 }
+
+.tren-global-average-value{
+    margin-top:12px;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    height:auto;
+}
+
+.tren-global-insight-value{
+    margin-top:10px;
+    font-size:15px;
+    font-weight:700;
+}
