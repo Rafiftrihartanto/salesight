@@ -59,7 +59,9 @@
 </div>
 
         <div class="tren-global-chart-placeholder">
-
+            <div class="tren-global-chart-wrapper">
+                <canvas id="globalSalesChart"></canvas>
+            </div>
         </div>
 
     </div>
@@ -198,5 +200,67 @@
     </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const canvas =
+            document.getElementById(
+                'globalSalesChart'
+            );
+
+        console.log(canvas);
+
+        const labels =
+            @json($chartLabels);
+
+        const salesData =
+            @json($chartSales);
+
+        new Chart(
+            canvas,
+            {
+                type: 'line',
+
+                data: {
+                    labels: labels,
+
+                    datasets: [{
+                        label: 'Total Penjualan',
+                        data: salesData,
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: false
+                    }]
+                },
+
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            }
+        );
+
+    }
+);
+
+</script>
 
 @endsection

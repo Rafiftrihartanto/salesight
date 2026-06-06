@@ -131,6 +131,36 @@ class TrenPenjualanGlobalController extends Controller
             ];
         }
 
+        // Grafik
+
+        $chartLabels = [
+            'Jan',
+            'Feb',
+            'Mar',
+            'Apr',
+            'Mei',
+            'Jun',
+            'Jul',
+            'Agu',
+            'Sep',
+            'Okt',
+            'Nov',
+            'Des'
+        ];
+
+        $chartSales = [];
+
+        for ($i = 1; $i <= 12; $i++) {
+
+            $bulan = $penjualanBulanan
+                ->where('bulan', $i)
+                ->first();
+
+            $chartSales[] = $bulan
+                ? (float) $bulan->total_penjualan
+                : 0;
+        }
+
         $labelTertinggi = $bulanTertinggi
             ? $namaBulan[$bulanTertinggi->bulan]
             : '-';
@@ -162,7 +192,9 @@ class TrenPenjualanGlobalController extends Controller
                 'labelTerendah',
                 'nilaiTertinggi',
                 'nilaiTerendah',
-                'growthBulanan'
+                'growthBulanan',
+                'chartLabels',
+                'chartSales'
             )
         );
     }
