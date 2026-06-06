@@ -126,10 +126,17 @@
 
                     <div class="tren-global-insight-text orange-text">
                         Bulan Penjualan Tertinggi
-                        <div class="tren-global-insight-value">
-                            {{ $labelTertinggi }}
-                            <br>
-                            Rp {{ number_format($nilaiTertinggi, 0, ',', '.') }}
+                        
+                        <div class="tren-global-insight-detail">
+
+                            <div class="tren-global-insight-month">
+                                {{ $labelTertinggi }}
+                            </div>
+
+                            <div class="tren-global-insight-sales">
+                                Rp{{ number_format($nilaiTertinggi,0,',','.') }}
+                            </div>
+
                         </div>
                     </div>
 
@@ -148,10 +155,15 @@
 
                     <div class="tren-global-insight-text red-text">
                         Bulan Penjualan Terendah
-                        <div class="tren-global-insight-value">
-                            {{ $labelTerendah }}
-                            <br>
-                            Rp {{ number_format($nilaiTerendah, 0, ',', '.') }}
+                        
+                        <div class="tren-global-insight-detail">
+                            <div class="tren-global-insight-month">
+                                {{ $labelTerendah }}
+                            </div>
+
+                            <div class="tren-global-insight-sales">
+                                Rp{{ number_format($nilaiTerendah,0,',','.') }}
+                            </div>
                         </div>
                     </div>
 

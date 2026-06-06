@@ -231,3 +231,21 @@
     font-size:15px;
     font-weight:700;
 }
+
+.tren-global-insight-detail{
+    margin-top:10px;
+}
+
+.tren-global-insight-month{
+    font-size:28px;
+    font-weight:500;
+    color:#111827;
+    line-height:1.2;
+}
+
+.tren-global-insight-sales{
+    margin-top:4px;
+    font-size:18px;
+    font-weight:350;
+    color:#64748b;
+}
