@@ -199,3 +199,21 @@
     background:#fff;
     cursor:pointer;
 }
+
+.tren-global-comparison-value{
+    font-size:24px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.tren-global-alert{
+    display:flex;
+    align-items:center;
+    padding:16px;
+}
+
+.tren-global-alert-text{
+    font-size:18px;
+    font-weight:700;
+    color:#dc2626;
+}

@@ -77,11 +77,11 @@
             <div class="tren-global-comparison active">
 
                 <div class="tren-global-comparison-title">
-                    (Bulan Ini)
+                    {{ $labelBulanIni }}
                 </div>
 
                 <div class="tren-global-comparison-value">
-
+                    Rp {{ number_format($penjualanBulanIni, 0, ',', '.') }}
                 </div>
 
             </div>
@@ -89,17 +89,23 @@
             <div class="tren-global-comparison">
 
                 <div class="tren-global-comparison-title gray">
-                    (Bulan Lalu)
+                    {{ $labelBulanLalu }}
                 </div>
 
                 <div class="tren-global-comparison-value">
-
+                    Rp {{ number_format($penjualanBulanLalu, 0, ',', '.') }}
                 </div>
 
             </div>
 
             <div class="tren-global-alert">
+                <div class="tren-global-alert-text">
 
+                    Selisih :
+
+                    Rp {{ number_format($selisih, 0, ',', '.') }}
+
+                </div>
             </div>
 
         </div>
