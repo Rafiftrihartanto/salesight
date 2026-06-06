@@ -22,13 +22,41 @@
 
         <div class="tren-global-chart-header">
 
-            <div>
-                <div class="tren-global-card-title">
-                    Tren Penjualan Global
-                </div>
+        <div>
+            <div class="tren-global-card-title">
+                Tren Penjualan Global
             </div>
-
         </div>
+
+        <div>
+            <form
+                method="GET"
+                action="{{ route('owner.tren-global') }}"
+            >
+
+                <select
+                    name="tahun"
+                    onchange="this.form.submit()"
+                    class="tren-global-year-select"
+                >
+
+                    @foreach($tahunList as $itemTahun)
+
+                        <option
+                            value="{{ $itemTahun }}"
+                            {{ $tahun == $itemTahun ? 'selected' : '' }}
+                        >
+                            {{ $itemTahun }}
+                        </option>
+
+                    @endforeach
+
+                </select>
+
+            </form>
+        </div>
+
+</div>
 
         <div class="tren-global-chart-placeholder">
 

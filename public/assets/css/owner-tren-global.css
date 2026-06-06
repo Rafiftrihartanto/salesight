@@ -183,3 +183,19 @@
     height: 27px;
     margin-top: 8px;
 }
+
+.tren-global-chart-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.tren-global-year-select{
+    min-width:180px;
+    height:44px;
+    border:1px solid #D9DDE5;
+    border-radius:10px;
+    padding:0 12px;
+    background:#fff;
+    cursor:pointer;
+}
