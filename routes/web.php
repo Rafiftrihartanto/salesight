@@ -66,9 +66,7 @@ Route::prefix('owner')->middleware('auth')->group(function () {
     Route::delete('/kelola-cabang/{id}', [BranchController::class, 'destroy'])->name('owner.kelola-cabang.destroy');
 
     // Daftar Toko
-    Route::get('/daftar-toko', function () {
-        return view('owner.daftar-toko');
-    })->name('owner.daftar-toko');
+    Route::get('/daftar-toko', [BranchController::class, 'daftarToko'])->name('owner.daftar-toko');
 
 });
 

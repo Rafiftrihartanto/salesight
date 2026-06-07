@@ -80,4 +80,59 @@ class BranchController extends Controller
 
         return redirect()->back()->with('success', 'Cabang ' . $branchName . ' berhasil dihapus secara permanen.');
     }
+
+    public function daftarToko()
+    {
+        // 1. Ambil semua cabang milik owner yang login
+        $branches = \App\Models\Branch::where('user_id', \Illuminate\Support\Facades\Auth::id())->get();
+
+        $currentYear = \Carbon\Carbon::now()->year;
+        $currentMonth = \Carbon\Carbon::now()->month;
+        $namaBulan = \Carbon\Carbon::now()->translatedFormat('F'); // Mendapatkan nama bulan (Mei, Juni, dll)
+
+        // 2. Ambil ID cabang dan total keseluruhan penjualan owner untuk hitung % kontribusi
+        // PENTING: Ganti 'id' jadi 'branch_id' kalau primary key tabelmu menggunakan nama itu
+        $branchIds = $branches->pluck('id'); 
+        $totalOwnerSales = \App\Models\Sale::whereIn('branch_id', $branchIds)->sum('total_sales');
+
+        $tokoData = [];
+        $themes = ['theme-blue', 'theme-orange', 'theme-green', 'theme-purple', 'theme-red'];
+
+        // 3. Looping perhitungan setiap cabang
+        foreach ($branches as $index => $branch) {
+            $idCabang = $branch->id ?? $branch->branch_id; // Antisipasi nama kolom ID
+            $query = \App\Models\Sale::where('branch_id', $idCabang);
+
+            $totalPenjualan = (clone $query)->sum('total_sales');
+            $totalTransaksi = (clone $query)->count();
+            
+            $omsetBulanIni = (clone $query)->whereYear('invoice_date', $currentYear)
+                                           ->whereMonth('invoice_date', $currentMonth)
+                                           ->sum('total_sales');
+
+            $kontribusi = $totalOwnerSales > 0 ? ($totalPenjualan / $totalOwnerSales) * 100 : 0;
+            $rataRata = $totalTransaksi > 0 ? $totalPenjualan / $totalTransaksi : 0;
+
+            $tokoData[] = [
+                'name' => $branch->name ?? 'Cabang ' . ($index + 1),
+                'location' => $branch->location ?? 'Lokasi belum diatur', // Ganti nama kolom jika ada kolom kota/lokasi
+                'code' => $branch->branch_code ?? 'SLS-0' . ($index + 1),
+                'status' => 'Aktif', // Bisa diubah jika ada logika non-aktif di databasemu
+                'total_penjualan' => $totalPenjualan,
+                'total_transaksi' => $totalTransaksi,
+                'omset_bulan_ini' => $omsetBulanIni,
+                'kontribusi' => round($kontribusi, 1),
+                'rata_rata' => $rataRata,
+                'theme' => $themes[$index % count($themes)], // Efek rotasi warna
+                'initial' => strtoupper(substr($branch->name ?? 'C', 0, 1))
+            ];
+        }
+
+        // 4. Urutkan toko dari penjualan tertinggi ke terendah (Untuk dapatkan lencana Top Store)
+        usort($tokoData, function($a, $b) {
+            return $b['total_penjualan'] <=> $a['total_penjualan'];
+        });
+
+        return view('owner.daftar-toko', compact('tokoData', 'namaBulan'));
+    }
 }
