@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\SalesModel;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Branch;
 
 class TrenPenjualanGlobalController extends Controller
 {
@@ -11,19 +13,33 @@ class TrenPenjualanGlobalController extends Controller
     {
         $tahun = $request->tahun ?? 2022;
 
-        $tahunList = SalesModel::selectRaw(
-                'YEAR(invoice_date) as tahun'
-            )
-            ->distinct()
-            ->orderBy('tahun', 'desc')
-            ->pluck('tahun');
+        $ownerBranchIds = Branch::where(
+            'user_id',
+            Auth::id()
+        )
+        ->pluck('branch_id');
+
+        $tahunList = SalesModel::whereIn(
+        'branch_id',
+        $ownerBranchIds
+    )
+    ->selectRaw(
+        'YEAR(invoice_date) as tahun'
+    )
+    ->distinct()
+    ->orderBy('tahun', 'desc')
+    ->pluck('tahun');
 
         // Perbandingan Penjualan
 
-        $penjualanBulanan = SalesModel::whereYear(
-                'invoice_date',
-                $tahun
-            )
+        $penjualanBulanan = SalesModel::whereIn(
+        'branch_id',
+        $ownerBranchIds
+        )
+        ->whereYear(
+            'invoice_date',
+            $tahun
+        )
             ->selectRaw("
                 MONTH(invoice_date) as bulan,
                 SUM(total_sales) as total_penjualan
@@ -31,6 +47,42 @@ class TrenPenjualanGlobalController extends Controller
             ->groupBy('bulan')
             ->orderBy('bulan')
             ->get();
+        
+        if ($penjualanBulanan->isEmpty()) {
+
+            return view(
+                'owner.tren-penjualan-global',
+                [
+                    'tahun' => $tahun,
+                    'tahunList' => collect(),
+
+                    'labelBulanIni' => '-',
+                    'labelBulanLalu' => '-',
+
+                    'penjualanBulanIni' => 0,
+                    'penjualanBulanLalu' => 0,
+
+                    'persentaseSelisih' => 0,
+                    'statusPerbandingan' => 'Stabil',
+
+                    'labelTertinggi' => '-',
+                    'labelTerendah' => '-',
+
+                    'nilaiTertinggi' => 0,
+                    'nilaiTerendah' => 0,
+
+                    'growthBulanan' => [],
+
+                    'chartLabels' => [
+                        'Jan','Feb','Mar','Apr',
+                        'Mei','Jun','Jul','Agu',
+                        'Sep','Okt','Nov','Des'
+                    ],
+
+                    'chartSales' => array_fill(0, 12, 0)
+                ]
+            );
+        }
 
         $bulanIni = $penjualanBulanan->last();
 
