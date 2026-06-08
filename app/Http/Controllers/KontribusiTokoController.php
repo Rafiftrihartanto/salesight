@@ -15,12 +15,28 @@ class KontribusiTokoController extends Controller
 {
     public function prosesEdas($tahun) //Untuk menjalankan metode edas
     {
+        $branchIds = DB::table('branches')
+            ->where(
+                'user_id',
+                Auth::user()->user_id
+            )
+            ->pluck('branch_id');
+
+        
         /*
         |--------------------------------------------------------------------------
-        | Hapus data EDAS tahun yang sama (optional)
+        | Hapus data EDAS tahun yang sama
         |--------------------------------------------------------------------------
         */
-        HasilEdasModel::where('periode_year', $tahun)->delete();
+       HasilEdasModel::where(
+            'user_id',
+            Auth::user()->user_id
+        )
+        ->where(
+            'periode_year',
+            $tahun
+        )
+        ->delete();
 
         /*
         |--------------------------------------------------------------------------
@@ -38,9 +54,16 @@ class KontribusiTokoController extends Controller
 
             DB::raw('AVG(total_sales) as average_sales')
         )
-            ->whereYear('invoice_date', $tahun)
-            ->groupBy('shopping_mall')
-            ->get();
+        ->whereIn(
+            'branch_id',
+            $branchIds
+        )
+        ->whereYear(
+            'invoice_date',
+            $tahun
+        )
+        ->groupBy('shopping_mall')
+        ->get();
 
         /*
         |--------------------------------------------------------------------------
@@ -283,7 +306,7 @@ class KontribusiTokoController extends Controller
         foreach ($results as $index => $result) {
 
             HasilEdasModel::create([
-                'user_id' => Auth::id(),
+                'user_id' => Auth::user()->user_id,
 
                 'shopping_mall' => $result['shopping_mall'],
 

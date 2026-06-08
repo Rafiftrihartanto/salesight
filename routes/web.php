@@ -68,6 +68,17 @@ Route::prefix('owner')->middleware('auth')->group(function () {
     // Daftar Toko
     Route::get('/daftar-toko', [BranchController::class, 'daftarToko'])->name('owner.daftar-toko');
 
+    // Proses Edas
+    Route::get(
+        '/proses-edas/{tahun}',
+        [KontribusiTokoController::class, 'prosesEdas']
+    );
+
+    // Proses forward chaining
+    Route::get(
+        '/proses-status-toko/{yearAwal}/{yearAkhir}',
+        [TrenPenjualanTokoController::class, 'prosesStatusToko']
+    );
 });
 
 /*
@@ -95,23 +106,3 @@ Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/data-transaksi/{id}/edit', [AdminTransactionController::class, 'edit'])->name('admin.transaksi.edit');
     Route::put('/data-transaksi/{id}', [AdminTransactionController::class, 'update'])->name('admin.transaksi.update');
 });
-
-
-/*
-|--------------------------------------------------------------------------
-| EDAS
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/proses-edas/{tahun}', [KontribusiTokoController::class, 'prosesEdas']);
-
-/*
-|--------------------------------------------------------------------------
-| FORWARD CHAINING
-|--------------------------------------------------------------------------
-*/
-
-Route::get(
-    '/proses-status-toko/{yearAwal}/{yearAkhir}',
-    [TrenPenjualanTokoController::class, 'prosesStatusToko']
-);
