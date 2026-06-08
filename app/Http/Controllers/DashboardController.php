@@ -5,55 +5,65 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Branch;
-use App\Models\Transaction;
+use App\Models\Sale;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Ambil daftar NAMA CABANG milik owner yang sedang login
-        // Ini dipakai untuk mencocokkan dengan kolom 'shopping_mall' di tabel transaksi
-        $ownerBranches = Branch::where('user_id', Auth::id())->pluck('name');
+        // 1. AMBIL ID CABANG MILIK OWNER
+        $ownerBranchIds = Branch::where('user_id', Auth::id())->pluck('branch_id');
 
-        // 2. Query dasar: Ambil transaksi HANYA dari cabang-cabang milik owner ini
-        $query = Transaction::whereIn('shopping_mall', $ownerBranches);
+        // 2. QUERY DASAR
+        $query = Sale::whereIn('branch_id', $ownerBranchIds);
 
-        // Siapkan variabel waktu (Tahun & Bulan ini)
         $currentYear = Carbon::now()->year;
         $currentMonth = Carbon::now()->month;
 
-        // --- MENGHITUNG STATISTIK ---
-        
-        // Total Cabang (dari tabel branches)
-        $totalCabang = $ownerBranches->count();
+        // --- STATISTIK KESELURUHAN ---
+        $totalCabang = $ownerBranchIds->count();
+        $totalTransaksi = (clone $query)->count();
+        $totalSemuaPendapatan = (clone $query)->sum('total_sales');
 
-        // Transaksi Tahun Berjalan
+        // --- STATISTIK TAHUN INI ---
         $transaksiTahunIni = (clone $query)->whereYear('invoice_date', $currentYear);
-        
-        $totalTransaksi = $transaksiTahunIni->count();
         $totalPenjualanTahun = $transaksiTahunIni->sum('total_sales');
 
-        // Omset Bulan Ini
+        // --- STATISTIK BULAN INI ---
         $omsetBulanIni = (clone $query)->whereYear('invoice_date', $currentYear)
                                        ->whereMonth('invoice_date', $currentMonth)
                                        ->sum('total_sales');
 
-        // Rata-rata Harian (Omset tahun ini dibagi jumlah hari yang sudah berlalu di tahun ini)
-        $daysInYear = Carbon::now()->dayOfYear; 
-        $rataRataHarian = $daysInYear > 0 ? $totalPenjualanTahun / $daysInYear : 0;
+        // --- RATA-RATA ---
+        $rataRataPerTransaksi = $totalTransaksi > 0 ? $totalSemuaPendapatan / $totalTransaksi : 0;
+        $rataRataHarian = Carbon::now()->day > 0 ? $omsetBulanIni / Carbon::now()->day : 0;
 
-        // Rata-rata Per Transaksi
-        $rataRataPerTransaksi = $totalTransaksi > 0 ? $totalPenjualanTahun / $totalTransaksi : 0;
+        // --- DATA UNTUK GRAFIK (12 BULAN TAHUN INI) ---
+        // Mengambil total sales per bulan
+        $salesData = (clone $query)
+            ->select(DB::raw('MONTH(invoice_date) as month'), DB::raw('SUM(total_sales) as total'))
+            ->whereYear('invoice_date', $currentYear)
+            ->groupBy('month')
+            ->pluck('total', 'month')
+            ->toArray();
 
-        // Kirim data ke view
+        // Menyusun array data untuk Chart.js/ApexCharts (Jan - Des)
+        $chartData = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $chartData[] = $salesData[$i] ?? 0; // Jika bulan kosong, isi 0
+        }
+
         return view('owner.dashboard', compact(
             'totalCabang',
             'totalTransaksi',
             'totalPenjualanTahun',
+            'totalSemuaPendapatan',
             'omsetBulanIni',
             'rataRataHarian',
-            'rataRataPerTransaksi'
+            'rataRataPerTransaksi',
+            'chartData' // Variabel baru untuk grafik
         ));
     }
 }

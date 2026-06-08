@@ -124,9 +124,7 @@
                 </div>
             </div>
 
-            <div class="dashboard-chart-placeholder">
-                <span class="placeholder-text">Area Grafik Penjualan (Chart.js / ApexCharts)</span>
-            </div>
+            <div id="salesChart" style="min-height: 350px;"></div>
 
         </div>
 
@@ -152,6 +150,89 @@
             button.classList.add('active');
         });
     });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+<script>
+    // 1. Script khusus untuk Tombol Filter & Lucide Icon (Diisolasi agar tidak mengganggu grafik)
+    try {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+
+        const filterButtons = document.querySelectorAll('.dashboard-filter-btn');
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+            });
+        });
+    } catch (e) {
+        console.log("Lucide/Filter error ignored:", e);
+    }
+</script>
+
+<script>
+    // 2. Script khusus untuk Render Grafik (Dibuat mandiri tanpa bungkus DOMContentLoaded agar langsung jalan)
+    try {
+        // Ambil data dari controller, jika kosong otomatis ganti ke array 0 sebanyak 12 bulan
+        var chartData = {!! json_encode($chartData ?? array_fill(0, 12, 0)) !!};
+
+        var options = {
+            series: [{
+                name: 'Total Penjualan (Rp)',
+                data: chartData
+            }],
+            chart: {
+                type: 'area',
+                height: 350,
+                toolbar: { show: false },
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
+                zoom: { enabled: false }
+            },
+            colors: ['#314cff'],
+            dataLabels: { enabled: false },
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+            fill: {
+                type: 'gradient',
+                gradient: {
+                    shadeIntensity: 1,
+                    opacityFrom: 0.4,
+                    opacityTo: 0.05,
+                }
+            },
+            xaxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des'],
+                axisBorder: { show: false },
+                axisTicks: { show: false }
+            },
+            yaxis: {
+                labels: {
+                    formatter: function (value) {
+                        if(value >= 1000000) return "Rp" + (value / 1000000).toFixed(1) + "Jt";
+                        if(value >= 1000) return "Rp" + (value / 1000).toFixed(0) + "Rb";
+                        return "Rp" + value;
+                    }
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return "Rp " + val.toLocaleString('id-ID');
+                    }
+                }
+            }
+        };
+
+        var chart = new ApexCharts(document.querySelector("#salesChart"), options);
+        chart.render();
+    } catch (error) {
+        console.error("ApexCharts Render Error:", error);
+    }
 </script>
 
 @endsection
