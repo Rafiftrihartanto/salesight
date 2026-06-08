@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\HasilEdasModel;
 use App\Models\SalesModel;
+use Illuminate\Support\Facades\Auth;
 
 class KontribusiTokoController extends Controller
 {
@@ -282,6 +283,7 @@ class KontribusiTokoController extends Controller
         foreach ($results as $index => $result) {
 
             HasilEdasModel::create([
+                'user_id' => Auth::id(),
 
                 'shopping_mall' => $result['shopping_mall'],
 
@@ -339,19 +341,30 @@ class KontribusiTokoController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $tahunList = HasilEdasModel::select('periode_year')
-            ->distinct()
-            ->orderBy('periode_year', 'desc')
-            ->pluck('periode_year');
+        $tahunList = HasilEdasModel::where(
+            'user_id',
+            Auth::id()
+        )
+        ->select('periode_year')
+        ->distinct()
+        ->orderBy('periode_year', 'desc')
+        ->pluck('periode_year');
 
 
         $data = HasilEdasModel::where(
+            'user_id',
+            Auth::id()
+        )
+        ->where(
             'periode_year',
             $tahun
         )
-            ->orderBy('ranking_position', 'asc')
-            ->get();
-
+        ->orderBy(
+            'ranking_position',
+            'asc'
+        )
+        ->get();
+        
         /*
         |--------------------------------------------------------------------------
         | Total sales keseluruhan
