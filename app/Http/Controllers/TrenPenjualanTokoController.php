@@ -305,9 +305,13 @@ class TrenPenjualanTokoController extends Controller
 
             $chartDatasets = [];
 
-            $semuaToko = SalesModel::select('shopping_mall')
-                ->distinct()
-                ->pluck('shopping_mall');
+            $semuaToko = SalesModel::whereIn(
+                'branch_id',
+                $branchIds
+            )
+            ->select('shopping_mall')
+            ->distinct()
+            ->pluck('shopping_mall');
 
             foreach ($semuaToko as $namaToko) {
 
