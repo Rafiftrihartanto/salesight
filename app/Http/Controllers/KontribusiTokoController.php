@@ -9,17 +9,34 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\HasilEdasModel;
 use App\Models\SalesModel;
+use Illuminate\Support\Facades\Auth;
 
 class KontribusiTokoController extends Controller
 {
     public function prosesEdas($tahun) //Untuk menjalankan metode edas
     {
+        $branchIds = DB::table('branches')
+            ->where(
+                'user_id',
+                Auth::user()->user_id
+            )
+            ->pluck('branch_id');
+
+        
         /*
         |--------------------------------------------------------------------------
-        | Hapus data EDAS tahun yang sama (optional)
+        | Hapus data EDAS tahun yang sama
         |--------------------------------------------------------------------------
         */
-        HasilEdasModel::where('periode_year', $tahun)->delete();
+       HasilEdasModel::where(
+            'user_id',
+            Auth::user()->user_id
+        )
+        ->where(
+            'periode_year',
+            $tahun
+        )
+        ->delete();
 
         /*
         |--------------------------------------------------------------------------
@@ -37,9 +54,16 @@ class KontribusiTokoController extends Controller
 
             DB::raw('AVG(total_sales) as average_sales')
         )
-            ->whereYear('invoice_date', $tahun)
-            ->groupBy('shopping_mall')
-            ->get();
+        ->whereIn(
+            'branch_id',
+            $branchIds
+        )
+        ->whereYear(
+            'invoice_date',
+            $tahun
+        )
+        ->groupBy('shopping_mall')
+        ->get();
 
         /*
         |--------------------------------------------------------------------------
@@ -282,6 +306,7 @@ class KontribusiTokoController extends Controller
         foreach ($results as $index => $result) {
 
             HasilEdasModel::create([
+                'user_id' => Auth::user()->user_id,
 
                 'shopping_mall' => $result['shopping_mall'],
 
@@ -339,19 +364,30 @@ class KontribusiTokoController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $tahunList = HasilEdasModel::select('periode_year')
-            ->distinct()
-            ->orderBy('periode_year', 'desc')
-            ->pluck('periode_year');
+        $tahunList = HasilEdasModel::where(
+            'user_id',
+            Auth::id()
+        )
+        ->select('periode_year')
+        ->distinct()
+        ->orderBy('periode_year', 'desc')
+        ->pluck('periode_year');
 
 
         $data = HasilEdasModel::where(
+            'user_id',
+            Auth::id()
+        )
+        ->where(
             'periode_year',
             $tahun
         )
-            ->orderBy('ranking_position', 'asc')
-            ->get();
-
+        ->orderBy(
+            'ranking_position',
+            'asc'
+        )
+        ->get();
+        
         /*
         |--------------------------------------------------------------------------
         | Total sales keseluruhan

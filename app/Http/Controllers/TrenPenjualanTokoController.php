@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\StatusTokoModel;
 use App\Models\SalesModel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Branch;
 
 class TrenPenjualanTokoController extends Controller
 {
@@ -129,6 +131,7 @@ class TrenPenjualanTokoController extends Controller
             */
 
             StatusTokoModel::create([
+                'user_id' => Auth::user()->user_id,
 
                 'shopping_mall' => $mall,
 
@@ -179,6 +182,10 @@ class TrenPenjualanTokoController extends Controller
 
         $toko = $request->toko ?? 'all';
 
+        $branchIds = DB::table('branches')
+            ->where('user_id', Auth::user()->user_id)
+            ->pluck('branch_id');
+
         /*
         |--------------------------------------------------------------------------
         | Tipe Chart
@@ -195,10 +202,14 @@ class TrenPenjualanTokoController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $tahunList = SalesModel::selectRaw('YEAR(invoice_date) as tahun')
-            ->distinct()
-            ->orderBy('tahun', 'desc')
-            ->pluck('tahun');
+        $tahunList = SalesModel::whereIn(
+            'branch_id',
+            $branchIds
+        )
+        ->selectRaw('YEAR(invoice_date) as tahun')
+        ->distinct()
+        ->orderBy('tahun', 'desc')
+        ->pluck('tahun');
 
         /*
         |--------------------------------------------------------------------------
@@ -206,10 +217,14 @@ class TrenPenjualanTokoController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $tokoList = SalesModel::select('shopping_mall')
-            ->distinct()
-            ->orderBy('shopping_mall')
-            ->pluck('shopping_mall');
+        $tokoList = SalesModel::whereIn(
+            'branch_id',
+            $branchIds
+        )
+        ->select('shopping_mall')
+        ->distinct()
+        ->orderBy('shopping_mall')
+        ->pluck('shopping_mall');
 
         /*
         |--------------------------------------------------------------------------
@@ -218,6 +233,10 @@ class TrenPenjualanTokoController extends Controller
         */
 
         $statusCabang = StatusTokoModel::where(
+            'user_id',
+            Auth::user()->user_id
+        )
+        ->where(
             'year_akhir',
             $tahun
         );
@@ -248,6 +267,10 @@ class TrenPenjualanTokoController extends Controller
         if ($dataForwardTersedia) {
 
             $pertumbuhanTertinggi = StatusTokoModel::where(
+                'user_id',
+                Auth::user()->user_id
+            )
+            ->where(
                 'year_akhir',
                 $tahun
             )
@@ -255,6 +278,10 @@ class TrenPenjualanTokoController extends Controller
             ->first();
 
             $penurunanTerbesar = StatusTokoModel::where(
+                'user_id',
+                Auth::user()->user_id
+            )
+            ->where(
                 'year_akhir',
                 $tahun
             )
@@ -278,9 +305,13 @@ class TrenPenjualanTokoController extends Controller
 
             $chartDatasets = [];
 
-            $semuaToko = SalesModel::select('shopping_mall')
-                ->distinct()
-                ->pluck('shopping_mall');
+            $semuaToko = SalesModel::whereIn(
+                'branch_id',
+                $branchIds
+            )
+            ->select('shopping_mall')
+            ->distinct()
+            ->pluck('shopping_mall');
 
             foreach ($semuaToko as $namaToko) {
 
