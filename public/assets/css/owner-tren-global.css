@@ -66,7 +66,8 @@
     transition: all 0.2s ease;
 }
 
-.tren-global-year-select:hover, .tren-global-year-select:focus {
+.tren-global-year-select:hover,
+.tren-global-year-select:focus {
     border-color: #314cff;
     box-shadow: 0 0 0 3px rgba(49, 76, 255, 0.1);
 }
@@ -100,6 +101,42 @@
     font-weight: 800;
     color: #0f172a;
     margin-bottom: 4px;
+}
+
+/* --- TOGGLE PER BULAN / PER TAHUN (BARU) --- */
+.perbandingan-toggle {
+    display: flex;
+    gap: 4px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 4px;
+}
+
+.toggle-btn {
+    flex: 1;
+    padding: 7px 12px;
+    border: none;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    cursor: pointer;
+    background: transparent;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn.active {
+    background: #ffffff;
+    color: #314cff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.toggle-btn:hover:not(.active) {
+    color: #0f172a;
+    background: #e8ecf0;
 }
 
 /* --- PERBANDINGAN PENJUALAN --- */
@@ -147,6 +184,9 @@
     font-weight: 700;
     color: #dc2626;
     line-height: 1.5;
+    display: flex;              /* TAMBAH INI */
+    align-items: center;        /* TAMBAH INI */
+    gap: 6px;
 }
 
 /* --- INSIGHT PENJUALAN --- */
@@ -179,18 +219,19 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
-.tren-global-icon img { width: 18px; height: 18px; object-fit: contain; }
 .tren-global-icon.orange { background: #f59e0b; }
-.tren-global-icon.red { background: #ef4444; }
+.tren-global-icon.red    { background: #ef4444; }
 
 .tren-global-insight-text {
     font-size: 14px;
     font-weight: 800;
 }
+
 .orange-text { color: #b45309; }
-.red-text { color: #be123c; }
+.red-text    { color: #be123c; }
 
 .tren-global-insight-detail {
     display: flex;
@@ -249,13 +290,16 @@
 .growth-badge .month { color: #64748b; margin-bottom: 2px; }
 .growth-badge.positive .val { color: #16a34a; }
 .growth-badge.negative .val { color: #dc2626; }
-.growth-badge.neutral .val { color: #94a3b8; }
+.growth-badge.neutral .val  { color: #94a3b8; }
 
-/* RESPONSIVE */
+/* --- RESPONSIVE --- */
 @media (max-width: 992px) {
-    .tren-global-bottom-cards { grid-template-columns: 1fr; }
-    .tren-global-average-grid { grid-template-columns: repeat(6, 1fr); }
+    .tren-global-bottom-cards  { grid-template-columns: 1fr; }
+    .tren-global-average-grid  { grid-template-columns: repeat(6, 1fr); }
 }
+
 @media (max-width: 576px) {
-    .tren-global-average-grid { grid-template-columns: repeat(3, 1fr); }
+    .tren-global-content       { padding: 20px 16px; }
+    .tren-global-average-grid  { grid-template-columns: repeat(3, 1fr); }
+    .perbandingan-toggle       { border-radius: 10px; }
 }

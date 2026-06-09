@@ -80,31 +80,43 @@ class TrenPenjualanGlobalController extends Controller
             }
         }
 
-        // 6. Perbandingan Tahun Ini vs Tahun Sebelumnya
-        $totalTahunIni = SalesModel::whereIn('branch_id', $ownerBranchIds)
-            ->whereYear('invoice_date', '=', (int) $tahun)
-            ->sum('total_sales');
+        // 6. Perbandingan BULANAN (bulan terakhir vs sebelumnya)
+        $bulanIniData = $penjualanBulanan->last();
+        $bulanLaluData = $penjualanBulanan->count() > 1
+            ? $penjualanBulanan->slice(-2, 1)->first()
+            : null;
 
-        $totalTahunLalu = SalesModel::whereIn('branch_id', $ownerBranchIds)
-            ->whereYear('invoice_date', '=', (int) $tahun - 1)
-            ->sum('total_sales');
+        $penjualanBulanIni = (float) ($bulanIniData ? $bulanIniData->total_penjualan : 0);
+        $penjualanBulanLalu = (float) ($bulanLaluData ? $bulanLaluData->total_penjualan : 0);
+        $labelBulanIni = (string) ($bulanIniData ? $namaBulanFull[$bulanIniData->bulan] : '-');
+        $labelBulanLalu = (string) ($bulanLaluData ? $namaBulanFull[$bulanLaluData->bulan] : '-');
+        $tahunSekarang = (int) date('Y');
+        $isCurrentYear = ((int) $tahun === $tahunSekarang);
 
-        $penjualanBulanIni = (float) $totalTahunIni;   // rename semantik di view nanti
-        $penjualanBulanLalu = (float) $totalTahunLalu;
+        $labelKartuIni = $isCurrentYear ? 'Bulan Ini' : 'Bulan Terakhir';
+        $labelKartuLalu = $isCurrentYear ? 'Bulan Lalu' : 'Bulan Sebelumnya';
 
-        $labelBulanIni = 'Tahun ' . $tahun;
-        $labelBulanLalu = 'Tahun ' . ((int) $tahun - 1);
+        $selisihBulan = $penjualanBulanIni - $penjualanBulanLalu;
+        $persentaseBulan = (float) ($penjualanBulanLalu > 0
+            ? ($selisihBulan / $penjualanBulanLalu) * 100 : 0);
+        $statusBulan = $persentaseBulan > 0 ? 'Naik' : ($persentaseBulan < 0 ? 'Turun' : 'Stabil');
 
-        $selisihNominal = $penjualanBulanIni - $penjualanBulanLalu;
-        $persentaseSelisih = (float) ($penjualanBulanLalu > 0
-            ? ($selisihNominal / $penjualanBulanLalu) * 100
-            : 0);
+        // 6b. Perbandingan TAHUNAN (tahun dipilih vs tahun sebelumnya)
+        $totalTahunIni = (float) SalesModel::whereIn('branch_id', $ownerBranchIds)
+            ->whereYear('invoice_date', (int) $tahun)->sum('total_sales');
+        $totalTahunLalu = (float) SalesModel::whereIn('branch_id', $ownerBranchIds)
+            ->whereYear('invoice_date', (int) $tahun - 1)->sum('total_sales');
+        $labelTahunIni = 'Tahun ' . $tahun;
+        $labelTahunLalu = 'Tahun ' . ((int) $tahun - 1);
 
-        $statusPerbandingan = 'Stabil';
-        if ($persentaseSelisih > 0)
-            $statusPerbandingan = 'Naik';
-        elseif ($persentaseSelisih < 0)
-            $statusPerbandingan = 'Turun';
+        $selisihTahun = $totalTahunIni - $totalTahunLalu;
+        $persentaseTahun = (float) ($totalTahunLalu > 0
+            ? ($selisihTahun / $totalTahunLalu) * 100 : 0);
+        $statusTahun = $persentaseTahun > 0 ? 'Naik' : ($persentaseTahun < 0 ? 'Turun' : 'Stabil');
+
+        // Untuk backward-compat variabel lama (dipakai compact)
+        $persentaseSelisih = $persentaseBulan;
+        $statusPerbandingan = $statusBulan;
 
         // 7. Insight Tertinggi & Terendah
         $bulanTertinggi = $penjualanBulanan->sortByDesc('total_penjualan')->first();
@@ -138,10 +150,23 @@ class TrenPenjualanGlobalController extends Controller
         return view('owner.tren-penjualan-global', compact(
             'tahun',
             'tahunList',
+            // bulanan
             'labelBulanIni',
             'labelBulanLalu',
             'penjualanBulanIni',
             'penjualanBulanLalu',
+            'persentaseBulan',
+            'statusBulan',
+            // tahunan
+            'labelTahunIni',
+            'labelTahunLalu',
+            'totalTahunIni',
+            'totalTahunLalu',
+            'persentaseTahun',
+            'statusTahun',
+            // lainnya
+            'labelKartuIni',
+            'labelKartuLalu',
             'persentaseSelisih',
             'statusPerbandingan',
             'labelTertinggi',
@@ -156,13 +181,24 @@ class TrenPenjualanGlobalController extends Controller
 
     private function returnEmptyView()
     {
+        $tahun = date('Y');
         return view('owner.tren-penjualan-global', [
-            'tahun' => date('Y'),
-            'tahunList' => [date('Y')],
-            'labelBulanIni' => 'Tahun ' . date('Y'),
-            'labelBulanLalu' => 'Tahun ' . (date('Y') - 1),
+            'tahun' => $tahun,
+            'tahunList' => [$tahun],
+            'labelBulanIni' => '-',
+            'labelBulanLalu' => '-',
             'penjualanBulanIni' => 0,
             'penjualanBulanLalu' => 0,
+            'persentaseBulan' => 0,
+            'statusBulan' => 'Stabil',
+            'labelKartuIni' => 'Bulan Ini',
+            'labelKartuLalu' => 'Bulan Lalu',
+            'labelTahunIni' => 'Tahun ' . $tahun,
+            'labelTahunLalu' => 'Tahun ' . ($tahun - 1),
+            'totalTahunIni' => 0,
+            'totalTahunLalu' => 0,
+            'persentaseTahun' => 0,
+            'statusTahun' => 'Stabil',
             'persentaseSelisih' => 0,
             'statusPerbandingan' => 'Stabil',
             'labelTertinggi' => '-',
