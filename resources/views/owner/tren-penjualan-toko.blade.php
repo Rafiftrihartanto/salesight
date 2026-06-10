@@ -57,89 +57,6 @@
         </div>
     </div>
 
-    {{-- PANEL FORWARD CHAINING --}}
-    <div class="tren-toko-fc-panel">
-        <div class="tren-toko-fc-left">
-            <i data-lucide="cpu" style="width:20px;height:20px;color:#314cff;flex-shrink:0;"></i>
-            <div>
-                <div class="tren-toko-fc-title">Proses Forward Chaining</div>
-                <div class="tren-toko-fc-desc">
-                    Klasifikasi status toko berdasarkan perbandingan penjualan dua tahun.
-                    Pilih tahun awal dan tahun akhir lalu klik Proses.
-                </div>
-            </div>
-        </div>
-        <div class="tren-toko-fc-right">
-            <select id="fcYearAwal" class="tren-toko-select">
-                @foreach($tahunList->sortBy(fn($t) => $t) as $t)
-                    <option value="{{ $t }}">{{ $t }}</option>
-                @endforeach
-            </select>
-            <span class="tren-toko-fc-arrow">→</span>
-            <select id="fcYearAkhir" class="tren-toko-select">
-                @foreach($tahunList as $t)
-                    <option value="{{ $t }}" {{ $loop->first ? 'selected' : '' }}>{{ $t }}</option>
-                @endforeach
-            </select>
-            <button onclick="jalankanFC()" class="tren-toko-fc-btn" id="fcBtn">
-                <i data-lucide="play" style="width:14px;height:14px;"></i>
-                Proses
-            </button>
-        </div>
-    </div>
-
-    {{-- ATURAN FC --}}
-    <div class="tren-toko-fc-rules">
-        <div class="tren-toko-fc-rules-title">
-            <i data-lucide="info" style="width:15px;height:15px;flex-shrink:0;"></i>
-            Aturan Klasifikasi Forward Chaining
-        </div>
-        <div class="tren-toko-fc-rules-grid">
-            <div class="fc-rule-item pesat">
-                <span class="fc-rule-dot"></span>
-                <div>
-                    <div class="fc-rule-label">Berkembang Pesat</div>
-                    <div class="fc-rule-desc">Growth ≥ 20%</div>
-                </div>
-            </div>
-            <div class="fc-rule-item tumbuh">
-                <span class="fc-rule-dot"></span>
-                <div>
-                    <div class="fc-rule-label">Tumbuh</div>
-                    <div class="fc-rule-desc">Growth 5% s/d &lt; 20%</div>
-                </div>
-            </div>
-            <div class="fc-rule-item stagnan">
-                <span class="fc-rule-dot"></span>
-                <div>
-                    <div class="fc-rule-label">Stagnan</div>
-                    <div class="fc-rule-desc">Growth -5% s/d &lt; 5%</div>
-                </div>
-            </div>
-            <div class="fc-rule-item menurun">
-                <span class="fc-rule-dot"></span>
-                <div>
-                    <div class="fc-rule-label">Menurun</div>
-                    <div class="fc-rule-desc">Growth -20% s/d &lt; -5%</div>
-                </div>
-            </div>
-            <div class="fc-rule-item kritis">
-                <span class="fc-rule-dot"></span>
-                <div>
-                    <div class="fc-rule-label">Kritis</div>
-                    <div class="fc-rule-desc">Growth &lt; -20%</div>
-                </div>
-            </div>
-            <div class="fc-rule-item baru">
-                <span class="fc-rule-dot"></span>
-                <div>
-                    <div class="fc-rule-label">Toko Baru</div>
-                    <div class="fc-rule-desc">Tidak ada data tahun sebelumnya</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
     {{-- BOTTOM CARDS --}}
     <div class="tren-toko-bottom-cards">
 
@@ -151,23 +68,23 @@
             <div class="tren-toko-summary-badges">
                 <span class="tren-badge pesat">
                     <i data-lucide="trending-up" style="width:12px;height:12px;"></i>
-                    Berkembang: {{ $statusCabang->where('status_toko','Berkembang Pesat')->count() }}
+                    Berkembang: {{ $jumlahBerkembang }}
                 </span>
                 <span class="tren-badge tumbuh">
                     <i data-lucide="arrow-up" style="width:12px;height:12px;"></i>
-                    Tumbuh: {{ $statusCabang->where('status_toko','Tumbuh')->count() }}
+                    Tumbuh: {{ $jumlahTumbuh }}
                 </span>
                 <span class="tren-badge stagnan">
                     <i data-lucide="minus" style="width:12px;height:12px;"></i>
-                    Stagnan: {{ $statusCabang->where('status_toko','Stagnan')->count() }}
+                    Stagnan: {{ $jumlahStagnan }}
                 </span>
                 <span class="tren-badge menurun">
                     <i data-lucide="trending-down" style="width:12px;height:12px;"></i>
-                    Menurun: {{ $statusCabang->where('status_toko','Menurun')->count() }}
+                    Menurun: {{ $jumlahMenurun }}
                 </span>
                 <span class="tren-badge kritis">
                     <i data-lucide="alert-triangle" style="width:12px;height:12px;"></i>
-                    Kritis: {{ $statusCabang->where('status_toko','Kritis')->count() }}
+                    Kritis: {{ $jumlahKritis }}
                 </span>
             </div>
             @endif
@@ -176,9 +93,8 @@
             <div class="tren-toko-empty-forward">
                 <i data-lucide="info" style="width:16px;height:16px;flex-shrink:0;"></i>
                 <div>
-                    Belum ada hasil Forward Chaining untuk tahun
-                    <strong>{{ $tahun }}</strong>.
-                    Gunakan panel di atas untuk memprosesnya.
+                    Belum ada data pembanding untuk tahun <strong>{{ $tahun }}</strong>.
+                    Status toko akan otomatis muncul ketika data tahun sebelumnya tersedia.
                 </div>
             </div>
             @else
@@ -197,7 +113,9 @@
                     <span class="tren-toko-status-name">{{ $item->shopping_mall }}</span>
                     <div class="tren-toko-status-right">
                         <span class="tren-toko-status-growth">
-                            {{ $item->status_toko == 'Toko Baru' ? '-' : number_format($item->growth_percent, 1) . '%' }}
+                            {{ $item->status_toko == 'Toko Baru'
+                                ? '-'
+                                : number_format($item->growth_percent, 1) . '%' }}
                         </span>
                         <span class="tren-toko-status-badge
                             @if($item->status_toko == 'Berkembang Pesat') badge-pesat
@@ -223,7 +141,10 @@
             @if(!$dataForwardTersedia)
             <div class="tren-toko-empty-forward">
                 <i data-lucide="info" style="width:16px;height:16px;flex-shrink:0;"></i>
-                <div>Jalankan Forward Chaining untuk melihat insight pertumbuhan toko.</div>
+                <div>
+                    Belum ada data pembanding untuk tahun <strong>{{ $tahun }}</strong>.
+                    Insight akan otomatis muncul ketika data tahun sebelumnya tersedia.
+                </div>
             </div>
 
             @else
@@ -235,12 +156,15 @@
                 </div>
                 <div class="tren-toko-insight-content">
                     <div class="tren-toko-insight-title blue-text">Pertumbuhan Tertinggi</div>
-                    <div class="tren-toko-insight-mall">{{ $pertumbuhanTertinggi->shopping_mall }}</div>
+                    <div class="tren-toko-insight-mall">
+                        {{ $pertumbuhanTertinggi->shopping_mall }}
+                    </div>
                     <div class="tren-toko-insight-growth positive">
                         +{{ number_format($pertumbuhanTertinggi->growth_percent, 2) }}%
                     </div>
                     <div class="tren-toko-insight-status">
-                        <span class="badge-pesat" style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">
+                        <span class="badge-pesat"
+                            style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">
                             {{ $pertumbuhanTertinggi->status_toko }}
                         </span>
                     </div>
@@ -254,15 +178,18 @@
                 </div>
                 <div class="tren-toko-insight-content">
                     <div class="tren-toko-insight-title yellow-text">Penurunan Terbesar</div>
-                    <div class="tren-toko-insight-mall">{{ $penurunanTerbesar->shopping_mall }}</div>
+                    <div class="tren-toko-insight-mall">
+                        {{ $penurunanTerbesar->shopping_mall }}
+                    </div>
                     <div class="tren-toko-insight-growth negative">
                         {{ number_format($penurunanTerbesar->growth_percent, 2) }}%
                     </div>
                     <div class="tren-toko-insight-status">
                         <span class="
-                            @if($penurunanTerbesar->status_toko == 'Kritis') badge-kritis
+                            @if($penurunanTerbesar->status_toko == 'Kritis')  badge-kritis
                             @elseif($penurunanTerbesar->status_toko == 'Menurun') badge-menurun
-                            @else badge-stagnan @endif"
+                            @else badge-stagnan
+                            @endif"
                             style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">
                             {{ $penurunanTerbesar->status_toko }}
                         </span>
@@ -333,34 +260,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     @endif
 });
-
-function jalankanFC() {
-    const yearAwal  = document.getElementById('fcYearAwal').value;
-    const yearAkhir = document.getElementById('fcYearAkhir').value;
-    const btn       = document.getElementById('fcBtn');
-
-    if (parseInt(yearAwal) >= parseInt(yearAkhir)) {
-        alert('Tahun awal harus lebih kecil dari tahun akhir.');
-        return;
-    }
-
-    btn.disabled  = true;
-    btn.innerHTML = '<i data-lucide="loader-2" style="width:14px;height:14px;"></i> Memproses...';
-    if (typeof lucide !== 'undefined') lucide.createIcons();
-
-    fetch(`/owner/proses-status-toko/${yearAwal}/${yearAkhir}`)
-        .then(r => r.json())
-        .then(data => {
-            alert(`✅ ${data.message}\nPeriode: ${data.periode}\nJumlah toko: ${data.jumlah_toko}`);
-            location.reload();
-        })
-        .catch(() => alert('Terjadi kesalahan saat memproses. Silakan coba lagi.'))
-        .finally(() => {
-            btn.disabled  = false;
-            btn.innerHTML = '<i data-lucide="play" style="width:14px;height:14px;"></i> Proses';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        });
-}
 </script>
 
 @endsection

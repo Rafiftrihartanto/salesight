@@ -11,110 +11,157 @@ use App\Models\Branch;
 
 class TrenPenjualanTokoController extends Controller
 {
-    public function prosesStatusToko($yearAwal, $yearAkhir)
-{
-    $userId   = Auth::user()->user_id;
-    $branches = Branch::where('user_id', $userId)->get();
-
-    StatusTokoModel::where('user_id', $userId)
-        ->where('year_awal', $yearAwal)
-        ->where('year_akhir', $yearAkhir)
-        ->delete();
-
-    $hasil = [];
-
-    foreach ($branches as $branch) {
-
-        $salesAwal = SalesModel::where('branch_id', $branch->branch_id)
-            ->whereYear('invoice_date', $yearAwal)
-            ->sum('total_sales');
-
-        $salesAkhir = SalesModel::where('branch_id', $branch->branch_id)
-            ->whereYear('invoice_date', $yearAkhir)
-            ->sum('total_sales');
-
-        if ($salesAkhir == 0) continue;
-
-        // ==========================================
-        // MESIN INFERENSI FORWARD CHAINING
-        // ==========================================
-        $growth = null;
-        $status = null;
-
-        // R1: Toko Baru — tidak ada data tahun sebelumnya
+    // =============================================
+    // MESIN INFERENSI FORWARD CHAINING (PRIVATE)
+    // Dipanggil otomatis, tidak diekspos ke UI
+    // =============================================
+    private function inferStatus($salesAwal, $salesAkhir): array
+    {
+        // R1: Toko Baru
         if ($salesAwal == 0 && $salesAkhir > 0) {
-            $growth = null;
-            $status = 'Toko Baru';
-        }
-        // R2: Berkembang Pesat — growth >= 20%
-        elseif (is_null($status)) {
-            $growth = (($salesAkhir - $salesAwal) / $salesAwal) * 100;
-            if ($growth >= 20) {
-                $status = 'Berkembang Pesat';
-            }
+            return ['growth' => null, 'status' => 'Toko Baru'];
         }
 
-        // R3: Tumbuh — growth 5% s/d < 20%
-        if (is_null($status) && !is_null($growth)) {
-            if ($growth >= 5) {
-                $status = 'Tumbuh';
-            }
+        // Tidak ada data tahun akhir → skip
+        if ($salesAkhir == 0) {
+            return ['growth' => null, 'status' => null];
         }
 
-        // R4: Stagnan — growth -5% s/d < 5%
-        if (is_null($status) && !is_null($growth)) {
-            if ($growth >= -5) {
-                $status = 'Stagnan';
-            }
-        }
+        $growth = (($salesAkhir - $salesAwal) / $salesAwal) * 100;
 
-        // R5: Menurun — growth -20% s/d < -5%
-        if (is_null($status) && !is_null($growth)) {
-            if ($growth >= -20) {
-                $status = 'Menurun';
-            }
-        }
+        // R2: Berkembang Pesat
+        if ($growth >= 20)  return ['growth' => $growth, 'status' => 'Berkembang Pesat'];
 
-        // R6: Kritis — growth < -20% (default jika tidak ada rule yang cocok)
-        if (is_null($status)) {
-            $status = 'Kritis';
-        }
-        // ==========================================
+        // R3: Tumbuh
+        if ($growth >= 5)   return ['growth' => $growth, 'status' => 'Tumbuh'];
 
-        StatusTokoModel::create([
-            'user_id'        => $userId,
-            'shopping_mall'  => $branch->name,
-            'year_awal'      => $yearAwal,
-            'year_akhir'     => $yearAkhir,
-            'sales_awal'     => $salesAwal,
-            'sales_akhir'    => $salesAkhir,
-            'growth_percent' => $growth ?? 0,
-            'status_toko'    => $status,
-        ]);
+        // R4: Stagnan
+        if ($growth >= -5)  return ['growth' => $growth, 'status' => 'Stagnan'];
 
-        $hasil[] = [
-            'branch'      => $branch->name,
-            'sales_awal'  => $salesAwal,
-            'sales_akhir' => $salesAkhir,
-            'growth'      => $growth,
-            'status'      => $status,
-        ];
+        // R5: Menurun
+        if ($growth >= -20) return ['growth' => $growth, 'status' => 'Menurun'];
+
+        // R6: Kritis (default)
+        return ['growth' => $growth, 'status' => 'Kritis'];
     }
 
-    return response()->json([
-        'message'     => 'Forward Chaining berhasil',
-        'periode'     => "$yearAwal - $yearAkhir",
-        'jumlah_toko' => count($hasil),
-        'data'        => $hasil,
-    ]);
-}
+    // =============================================
+    // AUTO-PROSES FC — dipanggil dari trenPenjualanToko
+    // Hanya proses pasangan tahun yang belum ada di DB
+    // =============================================
+    private function autoProsesFc(int $userId, $branchIds): void
+    {
+        // Ambil semua tahun yang ada di data transaksi
+        $tahunList = SalesModel::whereIn('branch_id', $branchIds)
+            ->selectRaw('YEAR(invoice_date) as tahun')
+            ->distinct()
+            ->orderBy('tahun')
+            ->pluck('tahun')
+            ->toArray();
 
+        if (count($tahunList) < 2) return; // butuh minimal 2 tahun
+
+        $branches = Branch::where('user_id', $userId)->get();
+
+        // Proses setiap pasangan tahun berurutan: [2021→2022, 2022→2023, dst]
+        for ($i = 0; $i < count($tahunList) - 1; $i++) {
+            $yearAwal  = $tahunList[$i];
+            $yearAkhir = $tahunList[$i + 1];
+
+            // Cek apakah pasangan ini sudah pernah diproses
+            $sudahAda = StatusTokoModel::where('user_id', $userId)
+                ->where('year_awal',  $yearAwal)
+                ->where('year_akhir', $yearAkhir)
+                ->exists();
+
+            if ($sudahAda) continue; // skip, tidak perlu proses ulang
+
+            // Proses FC untuk pasangan tahun ini
+            foreach ($branches as $branch) {
+                $salesAwal = SalesModel::where('branch_id', $branch->branch_id)
+                    ->whereYear('invoice_date', $yearAwal)
+                    ->sum('total_sales');
+
+                $salesAkhir = SalesModel::where('branch_id', $branch->branch_id)
+                    ->whereYear('invoice_date', $yearAkhir)
+                    ->sum('total_sales');
+
+                $result = $this->inferStatus($salesAwal, $salesAkhir);
+
+                if (is_null($result['status'])) continue; // skip cabang tanpa data
+
+                StatusTokoModel::create([
+                    'user_id'        => $userId,
+                    'shopping_mall'  => $branch->name,
+                    'year_awal'      => $yearAwal,
+                    'year_akhir'     => $yearAkhir,
+                    'sales_awal'     => $salesAwal,
+                    'sales_akhir'    => $salesAkhir,
+                    'growth_percent' => $result['growth'] ?? 0,
+                    'status_toko'    => $result['status'],
+                ]);
+            }
+        }
+    }
+
+    // =============================================
+    // ROUTE HANDLER — hanya untuk backward compat
+    // Bisa dihapus dari routes jika tidak dipakai
+    // =============================================
+    public function prosesStatusToko($yearAwal, $yearAkhir)
+    {
+        $userId    = Auth::user()->user_id;
+        $branchIds = Branch::where('user_id', $userId)->pluck('branch_id');
+
+        // Hapus data lama untuk periode ini lalu proses ulang
+        StatusTokoModel::where('user_id', $userId)
+            ->where('year_awal',  $yearAwal)
+            ->where('year_akhir', $yearAkhir)
+            ->delete();
+
+        $branches = Branch::where('user_id', $userId)->get();
+        $hasil    = [];
+
+        foreach ($branches as $branch) {
+            $salesAwal  = SalesModel::where('branch_id', $branch->branch_id)
+                ->whereYear('invoice_date', $yearAwal)->sum('total_sales');
+            $salesAkhir = SalesModel::where('branch_id', $branch->branch_id)
+                ->whereYear('invoice_date', $yearAkhir)->sum('total_sales');
+
+            $result = $this->inferStatus($salesAwal, $salesAkhir);
+
+            if (is_null($result['status'])) continue;
+
+            StatusTokoModel::create([
+                'user_id'        => $userId,
+                'shopping_mall'  => $branch->name,
+                'year_awal'      => $yearAwal,
+                'year_akhir'     => $yearAkhir,
+                'sales_awal'     => $salesAwal,
+                'sales_akhir'    => $salesAkhir,
+                'growth_percent' => $result['growth'] ?? 0,
+                'status_toko'    => $result['status'],
+            ]);
+
+            $hasil[] = ['branch' => $branch->name, 'status' => $result['status']];
+        }
+
+        return response()->json([
+            'message'     => 'Forward Chaining berhasil',
+            'periode'     => "$yearAwal - $yearAkhir",
+            'jumlah_toko' => count($hasil),
+            'data'        => $hasil,
+        ]);
+    }
+
+    // =============================================
+    // MAIN VIEW
+    // =============================================
     public function trenPenjualanToko(Request $request)
     {
         $userId    = Auth::user()->user_id;
         $branchIds = Branch::where('user_id', $userId)->pluck('branch_id');
 
-        // Jika owner belum punya cabang atau belum ada data → empty state
         $adaData = SalesModel::whereIn('branch_id', $branchIds)->exists();
 
         if (!$adaData) {
@@ -126,9 +173,11 @@ class TrenPenjualanTokoController extends Controller
                 'statusCabang'        => collect(),
                 'chartLabels'         => ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
                 'chartDatasets'       => [],
-                'jumlahNaik'          => 0,
-                'jumlahTurun'         => 0,
+                'jumlahBerkembang'    => 0,
+                'jumlahTumbuh'        => 0,
                 'jumlahStagnan'       => 0,
+                'jumlahMenurun'       => 0,
+                'jumlahKritis'        => 0,
                 'pertumbuhanTertinggi'=> null,
                 'penurunanTerbesar'   => null,
                 'dataForwardTersedia' => false,
@@ -136,29 +185,29 @@ class TrenPenjualanTokoController extends Controller
             ]);
         }
 
-        // Dropdown tahun — dari data transaksi
+        // ← FC berjalan otomatis di sini, sebelum data ditampilkan
+        $this->autoProsesFc($userId, $branchIds);
+
+        // Dropdown
         $tahunList = SalesModel::whereIn('branch_id', $branchIds)
             ->selectRaw('YEAR(invoice_date) as tahun')
             ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
 
-        // Dropdown toko — dari tabel branches (nama yang diinput owner)
-        // key = branch_id, value = name
         $tokoList = Branch::where('user_id', $userId)
             ->orderBy('name')
             ->pluck('name', 'branch_id');
 
         $tahun = $request->tahun ?? $tahunList->first() ?? date('Y');
-        $toko  = $request->toko  ?? 'all'; // nilai = branch_id atau 'all'
+        $toko  = $request->toko  ?? 'all';
 
-        // Nama toko yang dipilih (untuk filter status)
+        // Resolve nama toko jika filter spesifik
         $namaTokoDipilih = null;
         if ($toko !== 'all') {
             $namaTokoDipilih = Branch::where('branch_id', $toko)
-                ->where('user_id', $userId)
-                ->value('name');
+                ->where('user_id', $userId)->value('name');
         }
 
-        // Status Toko dari Forward Chaining
+        // Status dari hasil FC
         $statusQuery = StatusTokoModel::where('user_id', $userId)
             ->where('year_akhir', $tahun);
 
@@ -169,23 +218,18 @@ class TrenPenjualanTokoController extends Controller
         $statusCabang        = $statusQuery->orderBy('shopping_mall')->get();
         $dataForwardTersedia = $statusCabang->count() > 0;
 
-        // Insight pertumbuhan
+        // Insight
         $pertumbuhanTertinggi = null;
         $penurunanTerbesar    = null;
 
         if ($dataForwardTersedia) {
-            $baseInsight = StatusTokoModel::where('user_id', $userId)
-                ->where('year_akhir', $tahun);
-
-            $pertumbuhanTertinggi = (clone $baseInsight)
-                ->orderByDesc('growth_percent')->first();
-
-            $penurunanTerbesar = (clone $baseInsight)
-                ->orderBy('growth_percent')->first();
+            $base = StatusTokoModel::where('user_id', $userId)->where('year_akhir', $tahun);
+            $pertumbuhanTertinggi = (clone $base)->orderByDesc('growth_percent')->first();
+            $penurunanTerbesar    = (clone $base)->orderBy('growth_percent')->first();
         }
 
-        // Data Grafik — loop dari branches, bukan shopping_mall
-        $chartLabels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+        // Grafik
+        $chartLabels   = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
         $chartDatasets = [];
 
         $targetBranches = $toko === 'all'
@@ -196,9 +240,7 @@ class TrenPenjualanTokoController extends Controller
             $dataBulanan = SalesModel::where('branch_id', $branch->branch_id)
                 ->whereYear('invoice_date', $tahun)
                 ->selectRaw('MONTH(invoice_date) as bulan, SUM(total_sales) as total_penjualan')
-                ->groupBy('bulan')
-                ->orderBy('bulan')
-                ->get();
+                ->groupBy('bulan')->orderBy('bulan')->get();
 
             $sales = [];
             for ($i = 1; $i <= 12; $i++) {
@@ -206,21 +248,21 @@ class TrenPenjualanTokoController extends Controller
                 $sales[] = $b ? (float) $b->total_penjualan : 0;
             }
 
-            $chartDatasets[] = [
-                'label' => $branch->name, // ← nama dari tabel branches
-                'data'  => $sales,
-            ];
+            $chartDatasets[] = ['label' => $branch->name, 'data' => $sales];
         }
 
-        // Summary badge
-        $jumlahNaik    = $statusCabang->where('status_toko', 'Naik')->count();
-        $jumlahTurun   = $statusCabang->where('status_toko', 'Turun')->count();
-        $jumlahStagnan = $statusCabang->where('status_toko', 'Stagnan')->count();
+        // Summary count
+        $jumlahBerkembang = $statusCabang->where('status_toko', 'Berkembang Pesat')->count();
+        $jumlahTumbuh     = $statusCabang->where('status_toko', 'Tumbuh')->count();
+        $jumlahStagnan    = $statusCabang->where('status_toko', 'Stagnan')->count();
+        $jumlahMenurun    = $statusCabang->where('status_toko', 'Menurun')->count();
+        $jumlahKritis     = $statusCabang->where('status_toko', 'Kritis')->count();
 
         return view('owner.tren-penjualan-toko', compact(
             'tahun', 'toko', 'tahunList', 'tokoList',
             'statusCabang', 'chartLabels', 'chartDatasets',
-            'jumlahNaik', 'jumlahTurun', 'jumlahStagnan',
+            'jumlahBerkembang', 'jumlahTumbuh', 'jumlahStagnan',
+            'jumlahMenurun', 'jumlahKritis',
             'pertumbuhanTertinggi', 'penurunanTerbesar', 'dataForwardTersedia'
         ) + ['isEmpty' => false]);
     }
