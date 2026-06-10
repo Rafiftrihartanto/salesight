@@ -13,10 +13,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. AMBIL ID CABANG MILIK OWNER
+        // 1. ambil id cuman pny owner
         $ownerBranchIds = Branch::where('user_id', Auth::id())->pluck('branch_id');
 
-        // 2. QUERY DASAR
+        // 2. query dasarnya
         $query = Sale::whereIn('branch_id', $ownerBranchIds);
 
         $currentYear = Carbon::now()->year;
